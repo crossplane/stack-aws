@@ -23,6 +23,8 @@ import (
 	awsec2 "github.com/aws/aws-sdk-go-v2/service/ec2"
 )
 
+// ruleKey represents the unique tuple (protocol, from-to port) in a
+// format supported as a map key
 type ruleKey struct {
 	protocol string // lower case
 	fromPort int64  // -1 for nil
@@ -43,7 +45,7 @@ func getKey(perm awsec2.IpPermission) ruleKey {
 		toPort:   getInt64Key(perm.ToPort),
 	}
 }
-func getKey2(perm IPPermissionMap) ruleKey {
+func getKeyFromMap(perm IPPermissionMap) ruleKey {
 	return ruleKey{
 		protocol: strings.ToLower(aws.StringValue(perm.IPProtocol)),
 		fromPort: getInt64Key(perm.FromPort),
@@ -51,6 +53,8 @@ func getKey2(perm IPPermissionMap) ruleKey {
 	}
 }
 
+// stringInterner converts aws objects to objects where all string
+// pointers have the same value
 type stringInterner map[string]*string
 
 func (si stringInterner) Intern(s *string) *string {
@@ -65,14 +69,28 @@ func (si stringInterner) Intern(s *string) *string {
 	return s
 }
 
-func (si stringInterner) InternIPRange(i awsec2.IpRange) awsec2.IpRange {
+func (si stringInterner) internIPRange(i awsec2.IpRange) awsec2.IpRange {
 	return awsec2.IpRange{
 		CidrIp:      si.Intern(i.CidrIp),
 		Description: si.Intern(i.Description),
 	}
 }
 
-func (si stringInterner) InternUserIDGroupPair(i awsec2.UserIdGroupPair) awsec2.UserIdGroupPair {
+func (si stringInterner) internIPv6Range(i awsec2.Ipv6Range) awsec2.Ipv6Range {
+	return awsec2.Ipv6Range{
+		CidrIpv6:    si.Intern(i.CidrIpv6),
+		Description: si.Intern(i.Description),
+	}
+}
+
+func (si stringInterner) internPrefixListID(i awsec2.PrefixListId) awsec2.PrefixListId {
+	return awsec2.PrefixListId{
+		PrefixListId: si.Intern(i.PrefixListId),
+		Description:  si.Intern(i.Description),
+	}
+}
+
+func (si stringInterner) internUserIDGroupPair(i awsec2.UserIdGroupPair) awsec2.UserIdGroupPair {
 	return awsec2.UserIdGroupPair{
 		Description:            si.Intern(i.Description),
 		GroupId:                si.Intern(i.GroupId),
@@ -90,11 +108,9 @@ type IPPermissionMap struct {
 	IPProtocol *string
 
 	ipRanges        map[awsec2.IpRange]struct{}
+	ipv6Ranges      map[awsec2.Ipv6Range]struct{}
+	prefixListIDs   map[awsec2.PrefixListId]struct{}
 	userIDGroupPair map[awsec2.UserIdGroupPair]struct{}
-
-	//	Ipv6Ranges []Ipv6Range
-	//	PrefixListIds []PrefixListId
-
 }
 
 func (i *IPPermissionMap) Merge(m awsec2.IpPermission, interner stringInterner) {
@@ -108,7 +124,27 @@ func (i *IPPermissionMap) Merge(m awsec2.IpPermission, interner stringInterner) 
 		}
 
 		for _, r := range m.IpRanges {
-			i.ipRanges[interner.InternIPRange(r)] = struct{}{}
+			i.ipRanges[interner.internIPRange(r)] = struct{}{}
+		}
+	}
+
+	if len(m.Ipv6Ranges) > 0 {
+		if i.ipv6Ranges == nil {
+			i.ipv6Ranges = make(map[awsec2.Ipv6Range]struct{})
+		}
+
+		for _, r := range m.Ipv6Ranges {
+			i.ipv6Ranges[interner.internIPv6Range(r)] = struct{}{}
+		}
+	}
+
+	if len(m.PrefixListIds) > 0 {
+		if i.prefixListIDs == nil {
+			i.prefixListIDs = make(map[awsec2.PrefixListId]struct{})
+		}
+
+		for _, r := range m.PrefixListIds {
+			i.prefixListIDs[interner.internPrefixListID(r)] = struct{}{}
 		}
 	}
 
@@ -118,22 +154,10 @@ func (i *IPPermissionMap) Merge(m awsec2.IpPermission, interner stringInterner) 
 		}
 
 		for _, r := range m.UserIdGroupPairs {
-			i.userIDGroupPair[interner.InternUserIDGroupPair(r)] = struct{}{}
+			i.userIDGroupPair[interner.internUserIDGroupPair(r)] = struct{}{}
 		}
 	}
-	//	Ipv6Ranges []Ipv6Range
-	//	PrefixListIds []PrefixListId
 }
-
-/*
-func (i IPPermissionMap) IPRanges() []awsec2.IpRange {
-	ret := make([]awsec2.IpRange, 0, len(i.ipRanges))
-	for r := range i.ipRanges {
-		ret = append(ret, r)
-	}
-	return ret
-    }
-*/
 
 func (i IPPermissionMap) Diff(other IPPermissionMap) (add awsec2.IpPermission, remove awsec2.IpPermission) {
 	add.IpProtocol = i.IPProtocol
@@ -143,6 +167,12 @@ func (i IPPermissionMap) Diff(other IPPermissionMap) (add awsec2.IpPermission, r
 
 	add.IpRanges = i.diffRanges(other)
 	remove.IpRanges = other.diffRanges(i)
+
+	add.Ipv6Ranges = i.diffIPv6Ranges(other)
+	remove.Ipv6Ranges = other.diffIPv6Ranges(i)
+
+	add.PrefixListIds = i.diffPrefixListIDs(other)
+	remove.PrefixListIds = other.diffPrefixListIDs(i)
 
 	add.UserIdGroupPairs = i.diffUserIDGroupPair(other)
 	remove.UserIdGroupPairs = other.diffUserIDGroupPair(i)
@@ -154,6 +184,26 @@ func (i IPPermissionMap) diffRanges(other IPPermissionMap) []awsec2.IpRange {
 	var ret []awsec2.IpRange
 	for r := range i.ipRanges {
 		if _, ok := other.ipRanges[r]; !ok {
+			ret = append(ret, r)
+		}
+	}
+	return ret
+}
+
+func (i IPPermissionMap) diffIPv6Ranges(other IPPermissionMap) []awsec2.Ipv6Range {
+	var ret []awsec2.Ipv6Range
+	for r := range i.ipv6Ranges {
+		if _, ok := other.ipv6Ranges[r]; !ok {
+			ret = append(ret, r)
+		}
+	}
+	return ret
+}
+
+func (i IPPermissionMap) diffPrefixListIDs(other IPPermissionMap) []awsec2.PrefixListId {
+	var ret []awsec2.PrefixListId
+	for r := range i.prefixListIDs {
+		if _, ok := other.prefixListIDs[r]; !ok {
 			ret = append(ret, r)
 		}
 	}
@@ -187,37 +237,55 @@ func convertToMaps(rules []awsec2.IpPermission, interner stringInterner) map[rul
 	return ret
 }
 
-func diffPermissions(want, have []awsec2.IpPermission) (add, remove []awsec2.IpPermission) { // nolint:gocyclo
+func hasRules(perm awsec2.IpPermission) bool {
+	return perm.IpRanges != nil || perm.Ipv6Ranges != nil || perm.UserIdGroupPairs != nil || perm.PrefixListIds != nil
+}
+
+func diffPermissions(want, have []awsec2.IpPermission) (add, remove []awsec2.IpPermission) {
+	// To be able to use AWS structs with *string everywhere as map
+	// keys, we must use the same string object for consistently for
+	// the same string. We achieve this by temporarily interning all
+	// strings using the same map.
 	interner := stringInterner(make(map[string]*string))
 
+	// Convert the rule arrays to compact maps without duplicates.
+
+	// We do this to avoid O(n^2) lookup if the rule sets are large,
+	// and also because the user might represent two rules
+	//
+	//   [(proto,port,[iprange1,iprange2])]
+	// as
+	//   [(proto,port,[iprange1]), (proto,port,[iprange2])]
+	//
+	// By converting to maps and merging rules we can get the compact
+	// first form and easily check if rules are present or not.
 	wantMap := convertToMaps(want, interner)
 	haveMap := convertToMaps(have, interner)
 
 	for _, have := range haveMap {
-		want, ok := wantMap[getKey2(*have)]
+		want, ok := wantMap[getKeyFromMap(*have)]
 		if !ok {
 			want = &IPPermissionMap{}
 		}
 
 		removeRules, addRules := have.Diff(*want)
 
-		if addRules.IpRanges != nil || addRules.Ipv6Ranges != nil || addRules.UserIdGroupPairs != nil || addRules.PrefixListIds != nil {
+		if hasRules(addRules) {
 			add = append(add, addRules)
 		}
 
-		if removeRules.IpRanges != nil || removeRules.Ipv6Ranges != nil || removeRules.UserIdGroupPairs != nil || removeRules.PrefixListIds != nil {
+		if hasRules(removeRules) {
 			remove = append(remove, removeRules)
 		}
-
 	}
 
 	for _, want := range wantMap {
-		_, ok := haveMap[getKey2(*want)]
+		_, ok := haveMap[getKeyFromMap(*want)]
 		if !ok {
 			addRules, _ := want.Diff(IPPermissionMap{})
 			add = append(add, addRules)
 		}
 	}
 
-	return // nolint:nakedret
+	return add, remove
 }
