@@ -72,16 +72,29 @@ func (si stringInterner) InternIPRange(i awsec2.IpRange) awsec2.IpRange {
 	}
 }
 
+func (si stringInterner) InternUserIDGroupPair(i awsec2.UserIdGroupPair) awsec2.UserIdGroupPair {
+	return awsec2.UserIdGroupPair{
+		Description:            si.Intern(i.Description),
+		GroupId:                si.Intern(i.GroupId),
+		GroupName:              si.Intern(i.GroupName),
+		PeeringStatus:          si.Intern(i.PeeringStatus),
+		UserId:                 si.Intern(i.UserId),
+		VpcId:                  si.Intern(i.VpcId),
+		VpcPeeringConnectionId: si.Intern(i.VpcPeeringConnectionId),
+	}
+}
+
 type IPPermissionMap struct {
 	FromPort   *int64
 	ToPort     *int64
 	IPProtocol *string
 
-	ipRanges map[awsec2.IpRange]struct{}
+	ipRanges        map[awsec2.IpRange]struct{}
+	userIDGroupPair map[awsec2.UserIdGroupPair]struct{}
 
 	//	Ipv6Ranges []Ipv6Range
 	//	PrefixListIds []PrefixListId
-	//	UserIdGroupPairs []UserIdGroupPair
+
 }
 
 func (i *IPPermissionMap) Merge(m awsec2.IpPermission, interner stringInterner) {
@@ -98,9 +111,18 @@ func (i *IPPermissionMap) Merge(m awsec2.IpPermission, interner stringInterner) 
 			i.ipRanges[interner.InternIPRange(r)] = struct{}{}
 		}
 	}
+
+	if len(m.UserIdGroupPairs) > 0 {
+		if i.userIDGroupPair == nil {
+			i.userIDGroupPair = make(map[awsec2.UserIdGroupPair]struct{})
+		}
+
+		for _, r := range m.UserIdGroupPairs {
+			i.userIDGroupPair[interner.InternUserIDGroupPair(r)] = struct{}{}
+		}
+	}
 	//	Ipv6Ranges []Ipv6Range
 	//	PrefixListIds []PrefixListId
-	//	UserIdGroupPairs []UserIdGroupPair
 }
 
 /*
@@ -122,6 +144,9 @@ func (i IPPermissionMap) Diff(other IPPermissionMap) (add awsec2.IpPermission, r
 	add.IpRanges = i.diffRanges(other)
 	remove.IpRanges = other.diffRanges(i)
 
+	add.UserIdGroupPairs = i.diffUserIDGroupPair(other)
+	remove.UserIdGroupPairs = other.diffUserIDGroupPair(i)
+
 	return add, remove
 }
 
@@ -129,6 +154,16 @@ func (i IPPermissionMap) diffRanges(other IPPermissionMap) []awsec2.IpRange {
 	var ret []awsec2.IpRange
 	for r := range i.ipRanges {
 		if _, ok := other.ipRanges[r]; !ok {
+			ret = append(ret, r)
+		}
+	}
+	return ret
+}
+
+func (i IPPermissionMap) diffUserIDGroupPair(other IPPermissionMap) []awsec2.UserIdGroupPair {
+	var ret []awsec2.UserIdGroupPair
+	for r := range i.userIDGroupPair {
+		if _, ok := other.userIDGroupPair[r]; !ok {
 			ret = append(ret, r)
 		}
 	}
