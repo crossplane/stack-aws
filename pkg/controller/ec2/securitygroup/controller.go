@@ -18,9 +18,11 @@ package securitygroup
 
 import (
 	"context"
+	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsec2 "github.com/aws/aws-sdk-go-v2/service/ec2"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/types"
@@ -55,9 +57,9 @@ const (
 	errSpecUpdate       = "cannot update spec of the SecurityGroup custom resource"
 	errRevokeEgress     = "cannot remove the default egress rule"
 	errStatusUpdate     = "cannot update status of the SecurityGroup custom resource"
-	errUpdate           = "failed to update the SecurityGroup resource"
-	errCreateTags       = "failed to create tags for the Security Group resource"
-	errDeleteTags       = "failed to delete tags for the Security Group resource"
+	//	errUpdate           = "failed to update the SecurityGroup resource"
+	errCreateTags = "failed to create tags for the Security Group resource"
+	errDeleteTags = "failed to delete tags for the Security Group resource"
 )
 
 // SetupSecurityGroup adds a controller that reconciles SecurityGroups.
@@ -211,14 +213,6 @@ func (e *external) Update(ctx context.Context, mgd resource.Managed) (managed.Ex
 		return managed.ExternalUpdate{}, awsclient.Wrap(resource.Ignore(ec2.IsSecurityGroupNotFoundErr, err), errDescribe)
 	}
 
-	/*
-		   TODO: it turns out we never reconcile description? is it mutable?
-		patch, err := ec2.CreateSGPatch(response.SecurityGroups[0], cr.Spec.ForProvider)
-		if err != nil {
-			return managed.ExternalUpdate{}, errors.New(errUpdate)
-		}
-	*/
-
 	add, remove := awsclient.DiffEC2Tags(v1beta1.GenerateEC2Tags(cr.Spec.ForProvider.Tags), response.SecurityGroups[0].Tags)
 	if len(remove) > 0 {
 		if _, err := e.sg.DeleteTagsRequest(&awsec2.DeleteTagsInput{
@@ -240,34 +234,38 @@ func (e *external) Update(ctx context.Context, mgd resource.Managed) (managed.Ex
 
 	{
 		add, remove := diffPermissions(ec2.GenerateEC2Permissions(cr.Spec.ForProvider.Ingress), response.SecurityGroups[0].IpPermissions)
-		// spew.Dump("add", add, "remove", remove)
+		spew.Dump("ingress", "add", add, "remove", remove)
 		if len(remove) > 0 {
 			if _, err := e.sg.RevokeSecurityGroupIngressRequest(&awsec2.RevokeSecurityGroupIngressInput{
 				GroupId:       aws.String(meta.GetExternalName(cr)),
 				IpPermissions: remove,
 			}).Send(ctx); err != nil {
+				log.Println(err)
 				return managed.ExternalUpdate{}, awsclient.Wrap(err, errAuthorizeIngress) // todo err
 			}
 		}
 		if len(add) > 0 {
-			if _, err := e.sg.AuthorizeSecurityGroupIngressRequest(&awsec2.AuthorizeSecurityGroupIngressInput{
-				GroupId:       aws.String(meta.GetExternalName(cr)),
-				IpPermissions: add,
-			}).Send(ctx); err != nil {
-				return managed.ExternalUpdate{}, awsclient.Wrap(err, errAuthorizeIngress)
+			for _, perm := range add { // TODO: to loop or not? looping is more api calls, slower, but in the end we are more likely to get what the user wants in case there is a bug in the controller..
+				if _, err := e.sg.AuthorizeSecurityGroupIngressRequest(&awsec2.AuthorizeSecurityGroupIngressInput{
+					GroupId:       aws.String(meta.GetExternalName(cr)),
+					IpPermissions: []awsec2.IpPermission{perm},
+				}).Send(ctx); err != nil {
+					log.Println(err)
+					return managed.ExternalUpdate{}, awsclient.Wrap(err, errAuthorizeIngress)
+				}
 			}
 		}
 	}
 
 	{
 		add, remove := diffPermissions(ec2.GenerateEC2Permissions(cr.Spec.ForProvider.Egress), response.SecurityGroups[0].IpPermissionsEgress)
-		// spew.Dump("add", add, "remove", remove)
+		spew.Dump("egress", "add", add, "remove", remove)
 
 		if len(remove) > 0 {
 			if _, err = e.sg.RevokeSecurityGroupEgressRequest(&awsec2.RevokeSecurityGroupEgressInput{
 				GroupId:       aws.String(meta.GetExternalName(cr)),
 				IpPermissions: remove,
-			}).Send(ctx); err != nil && !ec2.IsRuleAlreadyExistsErr(err) {
+			}).Send(ctx); err != nil {
 				return managed.ExternalUpdate{}, awsclient.Wrap(err, errAuthorizeEgress) // todo err
 			}
 		}
@@ -283,31 +281,6 @@ func (e *external) Update(ctx context.Context, mgd resource.Managed) (managed.Ex
 	}
 
 	return managed.ExternalUpdate{}, nil
-}
-
-// TODO: warning O(n^2) - check port numbers? use maps?
-// TODO: add unit tests
-func diffPermissions(want, have []awsec2.IpPermission) (add, remove []awsec2.IpPermission) {
-	seen := make(map[int]bool)
-	for _, w := range want {
-		haveIt := false
-		for i, h := range have {
-			if diff := cmp.Diff(h, w); diff == "" { // TODO: are there any fields we should ignore or have a special comparator for, like tcp vs TCP. Others?
-				haveIt = true
-				seen[i] = true
-				break
-			}
-		}
-		if !haveIt {
-			add = append(add, w)
-		}
-	}
-	for i, h := range have {
-		if !seen[i] {
-			remove = append(remove, h)
-		}
-	}
-	return
 }
 
 func (e *external) Delete(ctx context.Context, mgd resource.Managed) error {

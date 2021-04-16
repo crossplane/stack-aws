@@ -69,15 +69,19 @@ func specPermissions() []v1beta1.IPPermission {
 	}
 }
 
-func sgPersmissions() []awsec2.IpPermission {
+func sgPersmissions(port int64, cidrs ...string) []awsec2.IpPermission {
+	ranges := make([]awsec2.IpRange, 0, len(cidrs))
+	for _, cidr := range cidrs {
+		ranges = append(ranges, awsec2.IpRange{
+			CidrIp: aws.String(cidr),
+		})
+	}
 	return []awsec2.IpPermission{
 		{
-			FromPort:   aws.Int64(port100),
-			ToPort:     aws.Int64(port100),
+			FromPort:   aws.Int64(port),
+			ToPort:     aws.Int64(port),
 			IpProtocol: aws.String(tcpProtocol),
-			IpRanges: []awsec2.IpRange{{
-				CidrIp: aws.String(cidr),
-			}},
+			IpRanges:   ranges,
 		},
 	}
 }
@@ -337,8 +341,8 @@ func TestUpdate(t *testing.T) {
 						return awsec2.DescribeSecurityGroupsRequest{
 							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Data: &awsec2.DescribeSecurityGroupsOutput{
 								SecurityGroups: []awsec2.SecurityGroup{{
-									IpPermissions:       sgPersmissions(),
-									IpPermissionsEgress: sgPersmissions(),
+									IpPermissions:       sgPersmissions(port100, cidr),
+									IpPermissionsEgress: sgPersmissions(port100, cidr),
 								}},
 							}},
 						}
@@ -379,8 +383,8 @@ func TestUpdate(t *testing.T) {
 						return awsec2.DescribeSecurityGroupsRequest{
 							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Data: &awsec2.DescribeSecurityGroupsOutput{
 								SecurityGroups: []awsec2.SecurityGroup{{
-									IpPermissions:       sgPersmissions(),
-									IpPermissionsEgress: sgPersmissions(),
+									IpPermissions:       sgPersmissions(port100, cidr),
+									IpPermissionsEgress: sgPersmissions(port100, cidr),
 								}},
 							}},
 						}
