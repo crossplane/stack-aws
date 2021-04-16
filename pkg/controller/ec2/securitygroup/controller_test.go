@@ -352,9 +352,19 @@ func TestUpdate(t *testing.T) {
 							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Data: &awsec2.AuthorizeSecurityGroupIngressOutput{}},
 						}
 					},
+					MockRevokeIngress: func(input *awsec2.RevokeSecurityGroupIngressInput) awsec2.RevokeSecurityGroupIngressRequest {
+						return awsec2.RevokeSecurityGroupIngressRequest{
+							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Data: &awsec2.RevokeSecurityGroupIngressOutput{}},
+						}
+					},
 					MockAuthorizeEgress: func(input *awsec2.AuthorizeSecurityGroupEgressInput) awsec2.AuthorizeSecurityGroupEgressRequest {
 						return awsec2.AuthorizeSecurityGroupEgressRequest{
 							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Data: &awsec2.AuthorizeSecurityGroupEgressOutput{}},
+						}
+					},
+					MockRevokeEgress: func(input *awsec2.RevokeSecurityGroupEgressInput) awsec2.RevokeSecurityGroupEgressRequest {
+						return awsec2.RevokeSecurityGroupEgressRequest{
+							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Data: &awsec2.RevokeSecurityGroupEgressOutput{}},
 						}
 					},
 				},
@@ -392,6 +402,11 @@ func TestUpdate(t *testing.T) {
 					MockAuthorizeIgress: func(input *awsec2.AuthorizeSecurityGroupIngressInput) awsec2.AuthorizeSecurityGroupIngressRequest {
 						return awsec2.AuthorizeSecurityGroupIngressRequest{
 							Request: &aws.Request{HTTPRequest: &http.Request{}, Error: errBoom},
+						}
+					},
+					MockRevokeIngress: func(input *awsec2.RevokeSecurityGroupIngressInput) awsec2.RevokeSecurityGroupIngressRequest {
+						return awsec2.RevokeSecurityGroupIngressRequest{
+							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Data: &awsec2.RevokeSecurityGroupIngressOutput{}},
 						}
 					},
 				},

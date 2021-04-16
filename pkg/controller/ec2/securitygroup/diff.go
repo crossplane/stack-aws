@@ -45,7 +45,7 @@ func getKey(perm awsec2.IpPermission) ruleKey {
 		toPort:   getInt64Key(perm.ToPort),
 	}
 }
-func getKeyFromMap(perm IPPermissionMap) ruleKey {
+func getKeyFromMap(perm ipPermissionMap) ruleKey {
 	return ruleKey{
 		protocol: strings.ToLower(aws.StringValue(perm.IPProtocol)),
 		fromPort: getInt64Key(perm.FromPort),
@@ -102,7 +102,7 @@ func (si stringInterner) internUserIDGroupPair(i awsec2.UserIdGroupPair) awsec2.
 	}
 }
 
-type IPPermissionMap struct {
+type ipPermissionMap struct {
 	FromPort   *int64
 	ToPort     *int64
 	IPProtocol *string
@@ -113,7 +113,10 @@ type IPPermissionMap struct {
 	userIDGroupPair map[awsec2.UserIdGroupPair]struct{}
 }
 
-func (i *IPPermissionMap) Merge(m awsec2.IpPermission, interner stringInterner) {
+// Merge adds rules from the permission set m into this permission
+// set. The caller must ensure that the permission set is for the same
+// protocol and port range.
+func (i *ipPermissionMap) Merge(m awsec2.IpPermission, interner stringInterner) { // nolint:gocyclo
 	i.FromPort = m.FromPort
 	i.ToPort = m.ToPort
 	i.IPProtocol = m.IpProtocol
@@ -159,7 +162,8 @@ func (i *IPPermissionMap) Merge(m awsec2.IpPermission, interner stringInterner) 
 	}
 }
 
-func (i IPPermissionMap) Diff(other IPPermissionMap) (add awsec2.IpPermission, remove awsec2.IpPermission) {
+// Diff returns rules that should be added or removed.
+func (i ipPermissionMap) Diff(other ipPermissionMap) (add awsec2.IpPermission, remove awsec2.IpPermission) {
 	add.IpProtocol = i.IPProtocol
 	add.FromPort = i.FromPort
 	add.ToPort = i.ToPort
@@ -180,7 +184,7 @@ func (i IPPermissionMap) Diff(other IPPermissionMap) (add awsec2.IpPermission, r
 	return add, remove
 }
 
-func (i IPPermissionMap) diffRanges(other IPPermissionMap) []awsec2.IpRange {
+func (i ipPermissionMap) diffRanges(other ipPermissionMap) []awsec2.IpRange {
 	var ret []awsec2.IpRange
 	for r := range i.ipRanges {
 		if _, ok := other.ipRanges[r]; !ok {
@@ -190,7 +194,7 @@ func (i IPPermissionMap) diffRanges(other IPPermissionMap) []awsec2.IpRange {
 	return ret
 }
 
-func (i IPPermissionMap) diffIPv6Ranges(other IPPermissionMap) []awsec2.Ipv6Range {
+func (i ipPermissionMap) diffIPv6Ranges(other ipPermissionMap) []awsec2.Ipv6Range {
 	var ret []awsec2.Ipv6Range
 	for r := range i.ipv6Ranges {
 		if _, ok := other.ipv6Ranges[r]; !ok {
@@ -200,7 +204,7 @@ func (i IPPermissionMap) diffIPv6Ranges(other IPPermissionMap) []awsec2.Ipv6Rang
 	return ret
 }
 
-func (i IPPermissionMap) diffPrefixListIDs(other IPPermissionMap) []awsec2.PrefixListId {
+func (i ipPermissionMap) diffPrefixListIDs(other ipPermissionMap) []awsec2.PrefixListId {
 	var ret []awsec2.PrefixListId
 	for r := range i.prefixListIDs {
 		if _, ok := other.prefixListIDs[r]; !ok {
@@ -210,7 +214,7 @@ func (i IPPermissionMap) diffPrefixListIDs(other IPPermissionMap) []awsec2.Prefi
 	return ret
 }
 
-func (i IPPermissionMap) diffUserIDGroupPair(other IPPermissionMap) []awsec2.UserIdGroupPair {
+func (i ipPermissionMap) diffUserIDGroupPair(other ipPermissionMap) []awsec2.UserIdGroupPair {
 	var ret []awsec2.UserIdGroupPair
 	for r := range i.userIDGroupPair {
 		if _, ok := other.userIDGroupPair[r]; !ok {
@@ -220,14 +224,14 @@ func (i IPPermissionMap) diffUserIDGroupPair(other IPPermissionMap) []awsec2.Use
 	return ret
 }
 
-func convertToMaps(rules []awsec2.IpPermission, interner stringInterner) map[ruleKey]*IPPermissionMap {
-	ret := make(map[ruleKey]*IPPermissionMap)
+func convertToMaps(rules []awsec2.IpPermission, interner stringInterner) map[ruleKey]*ipPermissionMap {
+	ret := make(map[ruleKey]*ipPermissionMap)
 
 	for _, rule := range rules {
 		k := getKey(rule)
 		normalized, ok := ret[k]
 		if !ok {
-			normalized = &IPPermissionMap{}
+			normalized = &ipPermissionMap{}
 			ret[k] = normalized
 		}
 
@@ -265,7 +269,7 @@ func diffPermissions(want, have []awsec2.IpPermission) (add, remove []awsec2.IpP
 	for _, have := range haveMap {
 		want, ok := wantMap[getKeyFromMap(*have)]
 		if !ok {
-			want = &IPPermissionMap{}
+			want = &ipPermissionMap{}
 		}
 
 		removeRules, addRules := have.Diff(*want)
@@ -282,7 +286,7 @@ func diffPermissions(want, have []awsec2.IpPermission) (add, remove []awsec2.IpP
 	for _, want := range wantMap {
 		_, ok := haveMap[getKeyFromMap(*want)]
 		if !ok {
-			addRules, _ := want.Diff(IPPermissionMap{})
+			addRules, _ := want.Diff(ipPermissionMap{})
 			add = append(add, addRules)
 		}
 	}

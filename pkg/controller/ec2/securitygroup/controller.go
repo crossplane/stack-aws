@@ -22,7 +22,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsec2 "github.com/aws/aws-sdk-go-v2/service/ec2"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/types"
@@ -55,11 +54,11 @@ const (
 	errAuthorizeEgress  = "failed to authorize egress rules"
 	errDelete           = "failed to delete the SecurityGroup resource"
 	errSpecUpdate       = "cannot update spec of the SecurityGroup custom resource"
-	errRevokeEgress     = "cannot remove the default egress rule"
+	errRevokeEgress     = "failed to revoke egress rules"
+	errRevokeIngress    = "failed to revoke ingress rules"
 	errStatusUpdate     = "cannot update status of the SecurityGroup custom resource"
-	//	errUpdate           = "failed to update the SecurityGroup resource"
-	errCreateTags = "failed to create tags for the Security Group resource"
-	errDeleteTags = "failed to delete tags for the Security Group resource"
+	errCreateTags       = "failed to create tags for the Security Group resource"
+	errDeleteTags       = "failed to delete tags for the Security Group resource"
 )
 
 // SetupSecurityGroup adds a controller that reconciles SecurityGroups.
@@ -234,14 +233,13 @@ func (e *external) Update(ctx context.Context, mgd resource.Managed) (managed.Ex
 
 	{
 		add, remove := diffPermissions(ec2.GenerateEC2Permissions(cr.Spec.ForProvider.Ingress), response.SecurityGroups[0].IpPermissions)
-		spew.Dump("ingress", "add", add, "remove", remove)
 		if len(remove) > 0 {
 			if _, err := e.sg.RevokeSecurityGroupIngressRequest(&awsec2.RevokeSecurityGroupIngressInput{
 				GroupId:       aws.String(meta.GetExternalName(cr)),
 				IpPermissions: remove,
 			}).Send(ctx); err != nil {
 				log.Println(err)
-				return managed.ExternalUpdate{}, awsclient.Wrap(err, errAuthorizeIngress) // todo err
+				return managed.ExternalUpdate{}, awsclient.Wrap(err, errRevokeIngress)
 			}
 		}
 		if len(add) > 0 {
@@ -259,14 +257,12 @@ func (e *external) Update(ctx context.Context, mgd resource.Managed) (managed.Ex
 
 	{
 		add, remove := diffPermissions(ec2.GenerateEC2Permissions(cr.Spec.ForProvider.Egress), response.SecurityGroups[0].IpPermissionsEgress)
-		spew.Dump("egress", "add", add, "remove", remove)
-
 		if len(remove) > 0 {
 			if _, err = e.sg.RevokeSecurityGroupEgressRequest(&awsec2.RevokeSecurityGroupEgressInput{
 				GroupId:       aws.String(meta.GetExternalName(cr)),
 				IpPermissions: remove,
 			}).Send(ctx); err != nil {
-				return managed.ExternalUpdate{}, awsclient.Wrap(err, errAuthorizeEgress) // todo err
+				return managed.ExternalUpdate{}, awsclient.Wrap(err, errRevokeEgress)
 			}
 		}
 
