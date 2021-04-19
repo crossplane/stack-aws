@@ -22,6 +22,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsec2 "github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func TestDiffPermissions(t *testing.T) {
@@ -126,14 +127,16 @@ func TestDiffPermissions(t *testing.T) {
 		},
 	}
 
+	sortIPRanges := cmpopts.SortSlices(func(a, b awsec2.IpRange) bool { return aws.StringValue(a.CidrIp) > aws.StringValue(b.CidrIp) })
+
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			add, remove := diffPermissions(tc.want, tc.have)
 
-			if diff := cmp.Diff(tc.add, add); diff != "" {
+			if diff := cmp.Diff(tc.add, add, sortIPRanges); diff != "" {
 				t.Errorf("r add: -want, +got:\n%s", diff)
 			}
-			if diff := cmp.Diff(tc.remove, remove); diff != "" {
+			if diff := cmp.Diff(tc.remove, remove, sortIPRanges); diff != "" {
 				t.Errorf("r remove: -want, +got:\n%s", diff)
 			}
 		})
