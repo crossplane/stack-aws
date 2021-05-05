@@ -18,6 +18,23 @@ spec:
     singular: securitygroup
   scope: Cluster
   versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          description:
+            type: string
+          groupID:
+            type: string
+          groupName:
+            type: string
+          ownerID:
+            type: string
+          vpcID:
+            type: string
+        type: object
+    served: true
+    storage: false
   - additionalPrinterColumns:
     - jsonPath: .status.conditions[?(@.type=='Ready')].status
       name: READY

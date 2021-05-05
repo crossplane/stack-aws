@@ -18,6 +18,23 @@ spec:
     singular: vpc
   scope: Cluster
   versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          cidrBlock:
+            type: string
+          dhcpOptionsID:
+            type: string
+          isDefault:
+            type: boolean
+          ownerID:
+            type: string
+          vpcID:
+            type: string
+        type: object
+    served: true
+    storage: false
   - additionalPrinterColumns:
     - jsonPath: .status.conditions[?(@.type=='Ready')].status
       name: READY

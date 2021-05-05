@@ -33,7 +33,7 @@ import (
 	"github.com/crossplane/provider-aws/pkg/controller/apigatewayv2/integration"
 	"github.com/crossplane/provider-aws/pkg/controller/apigatewayv2/integrationresponse"
 	"github.com/crossplane/provider-aws/pkg/controller/apigatewayv2/model"
-	"github.com/crossplane/provider-aws/pkg/controller/apigatewayv2/route"
+	apigatewayv2 "github.com/crossplane/provider-aws/pkg/controller/apigatewayv2/route"
 	"github.com/crossplane/provider-aws/pkg/controller/apigatewayv2/routeresponse"
 	"github.com/crossplane/provider-aws/pkg/controller/apigatewayv2/stage"
 	"github.com/crossplane/provider-aws/pkg/controller/apigatewayv2/vpclink"
@@ -49,6 +49,7 @@ import (
 	"github.com/crossplane/provider-aws/pkg/controller/ec2/address"
 	"github.com/crossplane/provider-aws/pkg/controller/ec2/internetgateway"
 	"github.com/crossplane/provider-aws/pkg/controller/ec2/natgateway"
+	"github.com/crossplane/provider-aws/pkg/controller/ec2/route"
 	"github.com/crossplane/provider-aws/pkg/controller/ec2/routetable"
 	"github.com/crossplane/provider-aws/pkg/controller/ec2/securitygroup"
 	"github.com/crossplane/provider-aws/pkg/controller/ec2/subnet"
@@ -133,7 +134,7 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 		repositorypolicy.SetupRepositoryPolicy,
 		api.SetupAPI,
 		stage.SetupStage,
-		route.SetupRoute,
+		apigatewayv2.SetupRoute,
 		authorizer.SetupAuthorizer,
 		integration.SetupIntegration,
 		deployment.SetupDeployment,
@@ -154,6 +155,7 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 		dbcluster.SetupDBCluster,
 		dbparametergroup.SetupDBParameterGroup,
 		vpccidrblock.SetupVPCCIDRBlock,
+		route.SetupRoute,
 	} {
 		if err := setup(mgr, l, rl); err != nil {
 			return err

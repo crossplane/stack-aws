@@ -1,0 +1,12 @@
+apiVersion: ec2.aws.crossplane.io/v1alpha1
+kind: Route
+metadata:
+  name: example-route
+spec:
+  forProvider:
+    destinationCIDRBlock: 10.10.10.0/24
+    region: eu-central-1
+    routeTableID: rtb-02b4cdb55c0634853
+    vpcPeeringConnectionID: pcx-0f9ae63771b9ffd06
+  providerConfigRef:
+    name: aws-provider-config
