@@ -76,7 +76,6 @@ import (
 	"github.com/crossplane/provider-aws/pkg/controller/kms/key"
 	"github.com/crossplane/provider-aws/pkg/controller/lambda/function"
 	"github.com/crossplane/provider-aws/pkg/controller/notification/snssubscription"
-	"github.com/crossplane/provider-aws/pkg/controller/notification/snstopic"
 	"github.com/crossplane/provider-aws/pkg/controller/rds/dbcluster"
 	"github.com/crossplane/provider-aws/pkg/controller/rds/dbparametergroup"
 	"github.com/crossplane/provider-aws/pkg/controller/rds/globalcluster"
@@ -91,6 +90,9 @@ import (
 	"github.com/crossplane/provider-aws/pkg/controller/servicediscovery/publicdnsnamespace"
 	"github.com/crossplane/provider-aws/pkg/controller/sfn/activity"
 	"github.com/crossplane/provider-aws/pkg/controller/sfn/statemachine"
+	"github.com/crossplane/provider-aws/pkg/controller/sns/platformapplication"
+	"github.com/crossplane/provider-aws/pkg/controller/sns/platformendpoint"
+	"github.com/crossplane/provider-aws/pkg/controller/sns/topic"
 	"github.com/crossplane/provider-aws/pkg/controller/sqs/queue"
 )
 
@@ -131,7 +133,6 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 		resourcerecordset.SetupResourceRecordSet,
 		hostedzone.SetupHostedZone,
 		secret.SetupSecret,
-		snstopic.SetupSNSTopic,
 		snssubscription.SetupSubscription,
 		queue.SetupQueue,
 		redshift.SetupCluster,
@@ -168,6 +169,9 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 		function.SetupFunction,
 		openidconnectprovider.SetupOpenIDConnectProvider,
 		distribution.SetupDistribution,
+		platformapplication.SetupPlatformApplication,
+		platformendpoint.SetupPlatformEndpoint,
+		topic.SetupTopic,
 	} {
 		if err := setup(mgr, l, rl); err != nil {
 			return err
