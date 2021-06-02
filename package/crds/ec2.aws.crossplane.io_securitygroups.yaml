@@ -69,7 +69,7 @@ spec:
                       properties:
                         fromPort:
                           description: The start of port range for the TCP and UDP protocols, or an ICMP/ICMPv6 type number. A value of -1 indicates all ICMP/ICMPv6 types. If you specify all ICMP/ICMPv6 types, you must specify all codes.
-                          format: int64
+                          format: int32
                           type: integer
                         ipProtocol:
                           description: "The IP protocol name (tcp, udp, icmp, icmpv6) or number (see Protocol Numbers (http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml)). \n [VPC only] Use -1 to specify all protocols. When authorizing security group rules, specifying -1 or a protocol number other than tcp, udp, icmp, or icmpv6 allows traffic on all ports, regardless of any port range you specify. For tcp, udp, and icmp, you must specify a port range. For icmpv6, the port range is optional; if you omit the port range, traffic for all types and codes is allowed."
@@ -121,7 +121,7 @@ spec:
                           type: array
                         toPort:
                           description: The end of port range for the TCP and UDP protocols, or an ICMP/ICMPv6 code. A value of -1 indicates all ICMP/ICMPv6 codes. If you specify all ICMP/ICMPv6 types, you must specify all codes.
-                          format: int64
+                          format: int32
                           type: integer
                         userIdGroupPairs:
                           description: UserIDGroupPairs are the source security group and AWS account ID pairs. It contains one or more accounts and security groups to allow flows from security groups of other accounts.
@@ -183,7 +183,7 @@ spec:
                       properties:
                         fromPort:
                           description: The start of port range for the TCP and UDP protocols, or an ICMP/ICMPv6 type number. A value of -1 indicates all ICMP/ICMPv6 types. If you specify all ICMP/ICMPv6 types, you must specify all codes.
-                          format: int64
+                          format: int32
                           type: integer
                         ipProtocol:
                           description: "The IP protocol name (tcp, udp, icmp, icmpv6) or number (see Protocol Numbers (http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml)). \n [VPC only] Use -1 to specify all protocols. When authorizing security group rules, specifying -1 or a protocol number other than tcp, udp, icmp, or icmpv6 allows traffic on all ports, regardless of any port range you specify. For tcp, udp, and icmp, you must specify a port range. For icmpv6, the port range is optional; if you omit the port range, traffic for all types and codes is allowed."
@@ -235,7 +235,7 @@ spec:
                           type: array
                         toPort:
                           description: The end of port range for the TCP and UDP protocols, or an ICMP/ICMPv6 code. A value of -1 indicates all ICMP/ICMPv6 codes. If you specify all ICMP/ICMPv6 types, you must specify all codes.
-                          format: int64
+                          format: int32
                           type: integer
                         userIdGroupPairs:
                           description: UserIDGroupPairs are the source security group and AWS account ID pairs. It contains one or more accounts and security groups to allow flows from security groups of other accounts.

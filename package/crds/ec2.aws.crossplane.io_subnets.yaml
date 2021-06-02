@@ -168,7 +168,7 @@ spec:
                 properties:
                   availableIpAddressCount:
                     description: The number of unused private IPv4 addresses in the subnet.
-                    format: int64
+                    format: int32
                     type: integer
                   defaultForAz:
                     description: Indicates whether this is the default subnet for the Availability Zone.

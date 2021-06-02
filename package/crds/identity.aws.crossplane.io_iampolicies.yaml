@@ -117,7 +117,7 @@ spec:
                     type: string
                   attachmentCount:
                     description: The number of entities (users, groups, and roles) that the policy is attached to.
-                    format: int64
+                    format: int32
                     type: integer
                   defaultVersionId:
                     description: The identifier for the version of the policy that is set as the default version.
@@ -127,7 +127,7 @@ spec:
                     type: boolean
                   permissionsBoundaryUsageCount:
                     description: The number of entities (users and roles) for which the policy is used to set the permissions boundary.
-                    format: int64
+                    format: int32
                     type: integer
                   policyId:
                     description: The stable and unique string identifying the policy.

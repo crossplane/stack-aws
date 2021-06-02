@@ -85,7 +85,7 @@ spec:
                     type: object
                   diskSize:
                     description: The root device disk size (in GiB) for your node group instances. The default disk size is 20 GiB.
-                    format: int64
+                    format: int32
                     type: integer
                   instanceTypes:
                     description: The instance type to use for your node group. Currently, you can specify a single instance type for a node group. The default value for this parameter is t3.medium. If you choose a GPU instance type, be sure to specify the AL2_x86_64_GPU with the amiType parameter.
@@ -168,15 +168,15 @@ spec:
                     properties:
                       desiredSize:
                         description: The current number of worker nodes that the managed node group should maintain. This value should be left unset if another controller, such as cluster-autoscaler, is expected to manage the desired size of the node group. If not set, the initial desired size will be the configured minimum size of the node group.
-                        format: int64
+                        format: int32
                         type: integer
                       maxSize:
                         description: The maximum number of worker nodes that the managed node group can scale out to. Managed node groups can support up to 100 nodes by default.
-                        format: int64
+                        format: int32
                         type: integer
                       minSize:
                         description: The minimum number of worker nodes that the managed node group can scale in to. This number must be greater than zero.
-                        format: int64
+                        format: int32
                         type: integer
                     type: object
                   subnetRefs:
@@ -314,7 +314,7 @@ spec:
                     properties:
                       desiredSize:
                         description: The current number of worker nodes for the managed node group.
-                        format: int64
+                        format: int32
                         type: integer
                     type: object
                   status:

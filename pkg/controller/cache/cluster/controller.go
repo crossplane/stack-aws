@@ -99,7 +99,7 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 		return managed.ExternalObservation{}, errors.New(errNotCacheCluster)
 	}
 
-	resp, err := e.client.DescribeCacheClustersRequest(elasticache.NewDescribeCacheClustersInput(meta.GetExternalName(cr))).Send(ctx)
+	resp, err := e.client.DescribeCacheClusters(ctx, elasticache.NewDescribeCacheClustersInput(meta.GetExternalName(cr)))
 	if err != nil {
 		return managed.ExternalObservation{ResourceExists: false}, awsclient.Wrap(resource.Ignore(elasticache.IsClusterNotFound, err), errDescribeCacheCluster)
 	}
@@ -145,7 +145,7 @@ func (e *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 
 	cr.Status.SetConditions(xpv1.Creating())
 
-	_, err := e.client.CreateCacheClusterRequest(elasticache.GenerateCreateCacheClusterInput(cr.Spec.ForProvider, meta.GetExternalName(cr))).Send(ctx)
+	_, err := e.client.CreateCacheCluster(ctx, elasticache.GenerateCreateCacheClusterInput(cr.Spec.ForProvider, meta.GetExternalName(cr)))
 
 	return managed.ExternalCreation{}, awsclient.Wrap(err, errCreateCacheCluster)
 }
@@ -161,7 +161,7 @@ func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 		return managed.ExternalUpdate{}, nil
 	}
 
-	_, err := e.client.ModifyCacheClusterRequest(elasticache.GenerateModifyCacheClusterInput(cr.Spec.ForProvider, meta.GetExternalName(cr))).Send(ctx)
+	_, err := e.client.ModifyCacheCluster(ctx, elasticache.GenerateModifyCacheClusterInput(cr.Spec.ForProvider, meta.GetExternalName(cr)))
 	return managed.ExternalUpdate{}, awsclient.Wrap(err, errModifyCacheCluster)
 }
 
@@ -177,9 +177,8 @@ func (e *external) Delete(ctx context.Context, mg resource.Managed) error {
 		return nil
 	}
 
-	_, err := e.client.DeleteCacheClusterRequest(&elasticacheservice.DeleteCacheClusterInput{
+	_, err := e.client.DeleteCacheCluster(ctx, &elasticacheservice.DeleteCacheClusterInput{
 		CacheClusterId: aws.String(meta.GetExternalName(cr)),
-	}).Send(ctx)
-
+	})
 	return awsclient.Wrap(resource.Ignore(elasticache.IsClusterNotFound, err), errDeleteCacheCluster)
 }

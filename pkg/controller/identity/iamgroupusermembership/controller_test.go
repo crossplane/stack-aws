@@ -18,11 +18,10 @@ package iamgroupusermembership
 
 import (
 	"context"
-	"net/http"
 	"testing"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	awsiam "github.com/aws/aws-sdk-go-v2/service/iam"
+	awsiamtypes "github.com/aws/aws-sdk-go-v2/service/iam/types"
 	"github.com/google/go-cmp/cmp"
 	"github.com/pkg/errors"
 
@@ -91,17 +90,15 @@ func TestObserve(t *testing.T) {
 		"VaildInput": {
 			args: args{
 				iam: &fake.MockGroupUserMembershipClient{
-					MockListGroupsForUser: func(input *awsiam.ListGroupsForUserInput) awsiam.ListGroupsForUserRequest {
-						return awsiam.ListGroupsForUserRequest{
-							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Data: &awsiam.ListGroupsForUserOutput{
-								Groups: []awsiam.Group{
-									{
-										Arn:       &groupArn,
-										GroupName: &groupName,
-									},
+					MockListGroupsForUser: func(ctx context.Context, input *awsiam.ListGroupsForUserInput, opts []func(*awsiam.Options)) (*awsiam.ListGroupsForUserOutput, error) {
+						return &awsiam.ListGroupsForUserOutput{
+							Groups: []awsiamtypes.Group{
+								{
+									Arn:       &groupArn,
+									GroupName: &groupName,
 								},
-							}},
-						}
+							},
+						}, nil
 					},
 				},
 				cr: userGroup(withGroupName(groupName),
@@ -130,10 +127,8 @@ func TestObserve(t *testing.T) {
 		"NoAttachedGroup": {
 			args: args{
 				iam: &fake.MockGroupUserMembershipClient{
-					MockListGroupsForUser: func(input *awsiam.ListGroupsForUserInput) awsiam.ListGroupsForUserRequest {
-						return awsiam.ListGroupsForUserRequest{
-							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Data: &awsiam.ListGroupsForUserOutput{}},
-						}
+					MockListGroupsForUser: func(ctx context.Context, input *awsiam.ListGroupsForUserInput, opts []func(*awsiam.Options)) (*awsiam.ListGroupsForUserOutput, error) {
+						return &awsiam.ListGroupsForUserOutput{}, nil
 					},
 				},
 				cr: userGroup(withSpecUserName(userName)),
@@ -145,10 +140,8 @@ func TestObserve(t *testing.T) {
 		"ClientError": {
 			args: args{
 				iam: &fake.MockGroupUserMembershipClient{
-					MockListGroupsForUser: func(input *awsiam.ListGroupsForUserInput) awsiam.ListGroupsForUserRequest {
-						return awsiam.ListGroupsForUserRequest{
-							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Error: errBoom},
-						}
+					MockListGroupsForUser: func(ctx context.Context, input *awsiam.ListGroupsForUserInput, opts []func(*awsiam.Options)) (*awsiam.ListGroupsForUserOutput, error) {
+						return nil, errBoom
 					},
 				},
 				cr: userGroup(withGroupName(groupName)),
@@ -193,10 +186,8 @@ func TestCreate(t *testing.T) {
 		"VaildInput": {
 			args: args{
 				iam: &fake.MockGroupUserMembershipClient{
-					MockAddUserToGroup: func(input *awsiam.AddUserToGroupInput) awsiam.AddUserToGroupRequest {
-						return awsiam.AddUserToGroupRequest{
-							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Data: &awsiam.AddUserToGroupOutput{}},
-						}
+					MockAddUserToGroup: func(ctx context.Context, input *awsiam.AddUserToGroupInput, opts []func(*awsiam.Options)) (*awsiam.AddUserToGroupOutput, error) {
+						return &awsiam.AddUserToGroupOutput{}, nil
 					},
 				},
 				cr: userGroup(withGroupName(groupName),
@@ -221,10 +212,8 @@ func TestCreate(t *testing.T) {
 		"ClientError": {
 			args: args{
 				iam: &fake.MockGroupUserMembershipClient{
-					MockAddUserToGroup: func(input *awsiam.AddUserToGroupInput) awsiam.AddUserToGroupRequest {
-						return awsiam.AddUserToGroupRequest{
-							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Error: errBoom},
-						}
+					MockAddUserToGroup: func(ctx context.Context, input *awsiam.AddUserToGroupInput, opts []func(*awsiam.Options)) (*awsiam.AddUserToGroupOutput, error) {
+						return nil, errBoom
 					},
 				},
 				cr: userGroup(withGroupName(groupName),
@@ -271,10 +260,8 @@ func TestDelete(t *testing.T) {
 		"VaildInput": {
 			args: args{
 				iam: &fake.MockGroupUserMembershipClient{
-					MockRemoveUserFromGroup: func(input *awsiam.RemoveUserFromGroupInput) awsiam.RemoveUserFromGroupRequest {
-						return awsiam.RemoveUserFromGroupRequest{
-							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Data: &awsiam.RemoveUserFromGroupOutput{}},
-						}
+					MockRemoveUserFromGroup: func(ctx context.Context, input *awsiam.RemoveUserFromGroupInput, opts []func(*awsiam.Options)) (*awsiam.RemoveUserFromGroupOutput, error) {
+						return &awsiam.RemoveUserFromGroupOutput{}, nil
 					},
 				},
 				cr: userGroup(withGroupName(groupName),
@@ -299,10 +286,8 @@ func TestDelete(t *testing.T) {
 		"ClientError": {
 			args: args{
 				iam: &fake.MockGroupUserMembershipClient{
-					MockRemoveUserFromGroup: func(input *awsiam.RemoveUserFromGroupInput) awsiam.RemoveUserFromGroupRequest {
-						return awsiam.RemoveUserFromGroupRequest{
-							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Error: errBoom},
-						}
+					MockRemoveUserFromGroup: func(ctx context.Context, input *awsiam.RemoveUserFromGroupInput, opts []func(*awsiam.Options)) (*awsiam.RemoveUserFromGroupOutput, error) {
+						return nil, errBoom
 					},
 				},
 				cr: userGroup(withGroupName(userName),
@@ -318,17 +303,15 @@ func TestDelete(t *testing.T) {
 		"ResourceDoesNotExist": {
 			args: args{
 				iam: &fake.MockGroupUserMembershipClient{
-					MockRemoveUserFromGroup: func(input *awsiam.RemoveUserFromGroupInput) awsiam.RemoveUserFromGroupRequest {
-						return awsiam.RemoveUserFromGroupRequest{
-							Request: &aws.Request{HTTPRequest: &http.Request{}, Retryer: aws.NoOpRetryer{}, Error: errors.New(errRemove)},
-						}
+					MockRemoveUserFromGroup: func(ctx context.Context, input *awsiam.RemoveUserFromGroupInput, opts []func(*awsiam.Options)) (*awsiam.RemoveUserFromGroupOutput, error) {
+						return nil, &awsiamtypes.NoSuchEntityException{}
 					},
 				},
 				cr: userGroup(),
 			},
 			want: want{
 				cr:  userGroup(withConditions(xpv1.Deleting())),
-				err: awsclient.Wrap(errors.New(errRemove), errRemove),
+				err: awsclient.Wrap(&awsiamtypes.NoSuchEntityException{}, errRemove),
 			},
 		},
 	}

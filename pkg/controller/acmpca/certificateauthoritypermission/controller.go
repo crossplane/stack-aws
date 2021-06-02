@@ -21,6 +21,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsacmpca "github.com/aws/aws-sdk-go-v2/service/acmpca"
+	awsacmpcatypes "github.com/aws/aws-sdk-go-v2/service/acmpca/types"
 	"github.com/pkg/errors"
 	"k8s.io/client-go/util/workqueue"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -95,9 +96,9 @@ func (e *external) Observe(ctx context.Context, mgd resource.Managed) (managed.E
 	if !ok {
 		return managed.ExternalObservation{}, errors.New(errUnexpectedObject)
 	}
-	response, err := e.client.ListPermissionsRequest(&awsacmpca.ListPermissionsInput{
+	response, err := e.client.ListPermissions(ctx, &awsacmpca.ListPermissionsInput{
 		CertificateAuthorityArn: cr.Spec.ForProvider.CertificateAuthorityARN,
-	}).Send(ctx)
+	})
 	if err != nil {
 		return managed.ExternalObservation{}, awsclient.Wrap(resource.Ignore(acmpca.IsErrorNotFound, err), errGet)
 	}
@@ -119,11 +120,11 @@ func (e *external) Create(ctx context.Context, mgd resource.Managed) (managed.Ex
 		return managed.ExternalCreation{}, errors.New(errUnexpectedObject)
 	}
 	cr.Status.SetConditions(xpv1.Creating())
-	_, err := e.client.CreatePermissionRequest(&awsacmpca.CreatePermissionInput{
-		Actions:                 []awsacmpca.ActionType{awsacmpca.ActionTypeIssueCertificate, awsacmpca.ActionTypeGetCertificate, awsacmpca.ActionTypeListPermissions},
+	_, err := e.client.CreatePermission(ctx, &awsacmpca.CreatePermissionInput{
+		Actions:                 []awsacmpcatypes.ActionType{awsacmpcatypes.ActionTypeIssueCertificate, awsacmpcatypes.ActionTypeGetCertificate, awsacmpcatypes.ActionTypeListPermissions},
 		CertificateAuthorityArn: cr.Spec.ForProvider.CertificateAuthorityARN,
 		Principal:               aws.String(principal),
-	}).Send(ctx)
+	})
 	return managed.ExternalCreation{}, awsclient.Wrap(err, errCreate)
 
 }
@@ -140,10 +141,10 @@ func (e *external) Delete(ctx context.Context, mgd resource.Managed) error {
 
 	cr.Status.SetConditions(xpv1.Deleting())
 
-	_, err := e.client.DeletePermissionRequest(&awsacmpca.DeletePermissionInput{
+	_, err := e.client.DeletePermission(ctx, &awsacmpca.DeletePermissionInput{
 		CertificateAuthorityArn: cr.Spec.ForProvider.CertificateAuthorityARN,
 		Principal:               aws.String(principal),
-	}).Send(ctx)
+	})
 
 	return awsclient.Wrap(resource.Ignore(acmpca.IsErrorNotFound, err), errDelete)
 }

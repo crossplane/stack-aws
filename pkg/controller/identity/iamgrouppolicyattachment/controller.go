@@ -21,6 +21,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsiam "github.com/aws/aws-sdk-go-v2/service/iam"
+	awsiamtypes "github.com/aws/aws-sdk-go-v2/service/iam/types"
 	"github.com/pkg/errors"
 	"k8s.io/client-go/util/workqueue"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -92,16 +93,16 @@ func (e *external) Observe(ctx context.Context, mgd resource.Managed) (managed.E
 		return managed.ExternalObservation{}, errors.New(errUnexpectedObject)
 	}
 
-	observed, err := e.client.ListAttachedGroupPoliciesRequest(&awsiam.ListAttachedGroupPoliciesInput{
+	observed, err := e.client.ListAttachedGroupPolicies(ctx, &awsiam.ListAttachedGroupPoliciesInput{
 		GroupName: &cr.Spec.ForProvider.GroupName,
-	}).Send(ctx)
+	})
 	if err != nil {
 		return managed.ExternalObservation{}, awsclient.Wrap(resource.Ignore(iam.IsErrorNotFound, err), errGet)
 	}
 
-	var attachedPolicyObject *awsiam.AttachedPolicy
+	var attachedPolicyObject *awsiamtypes.AttachedPolicy
 	for i, policy := range observed.AttachedPolicies {
-		if cr.Spec.ForProvider.PolicyARN == aws.StringValue(policy.PolicyArn) {
+		if cr.Spec.ForProvider.PolicyARN == aws.ToString(policy.PolicyArn) {
 			attachedPolicyObject = &observed.AttachedPolicies[i]
 			break
 		}
@@ -116,7 +117,7 @@ func (e *external) Observe(ctx context.Context, mgd resource.Managed) (managed.E
 	cr.SetConditions(xpv1.Available())
 
 	cr.Status.AtProvider = v1alpha1.IAMGroupPolicyAttachmentObservation{
-		AttachedPolicyARN: aws.StringValue(attachedPolicyObject.PolicyArn),
+		AttachedPolicyARN: aws.ToString(attachedPolicyObject.PolicyArn),
 	}
 
 	return managed.ExternalObservation{
@@ -133,10 +134,10 @@ func (e *external) Create(ctx context.Context, mgd resource.Managed) (managed.Ex
 
 	cr.SetConditions(xpv1.Creating())
 
-	_, err := e.client.AttachGroupPolicyRequest(&awsiam.AttachGroupPolicyInput{
+	_, err := e.client.AttachGroupPolicy(ctx, &awsiam.AttachGroupPolicyInput{
 		PolicyArn: &cr.Spec.ForProvider.PolicyARN,
 		GroupName: &cr.Spec.ForProvider.GroupName,
-	}).Send(ctx)
+	})
 
 	return managed.ExternalCreation{}, awsclient.Wrap(err, errAttach)
 }
@@ -156,10 +157,10 @@ func (e *external) Delete(ctx context.Context, mgd resource.Managed) error {
 
 	cr.Status.SetConditions(xpv1.Deleting())
 
-	_, err := e.client.DetachGroupPolicyRequest(&awsiam.DetachGroupPolicyInput{
+	_, err := e.client.DetachGroupPolicy(ctx, &awsiam.DetachGroupPolicyInput{
 		PolicyArn: &cr.Spec.ForProvider.PolicyARN,
 		GroupName: &cr.Spec.ForProvider.GroupName,
-	}).Send(ctx)
+	})
 
 	if iam.IsErrorNotFound(err) {
 		return nil

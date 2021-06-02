@@ -140,7 +140,7 @@ spec:
                     type: object
                   permanentDeletionTimeInDays:
                     description: The number of days to make a CA restorable after it has been deleted
-                    format: int64
+                    format: int32
                     type: integer
                   region:
                     description: Region is the region you'd like your CertificateAuthority to be created in.
@@ -156,7 +156,7 @@ spec:
                         type: boolean
                       expirationInDays:
                         description: Number of days until a certificate expires
-                        format: int64
+                        format: int32
                         type: integer
                       s3BucketName:
                         description: Name of the S3 bucket that contains the CRL

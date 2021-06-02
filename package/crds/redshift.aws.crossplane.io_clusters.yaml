@@ -61,7 +61,7 @@ spec:
                     type: boolean
                   automatedSnapshotRetentionPeriod:
                     description: AutomatedSnapshotRetentionPeriod is the number of days for which automated backups are retained. Setting this parameter to a positive number enables backups. Setting this parameter to  0 disables automated backups. default=1
-                    format: int64
+                    format: int32
                     maximum: 35
                     minimum: 0
                     type: integer
@@ -129,7 +129,7 @@ spec:
                     type: string
                   finalClusterSnapshotRetentionPeriod:
                     description: FinalClusterSnapshotRetentionPeriod is the number of days that a manual snapshot is retained. If the value is -1, the manual snapshot is retained indefinitely. The value must be either -1 or an integer between 1 and 3,653. default -1
-                    format: int64
+                    format: int32
                     type: integer
                   hsmClientCertificateIdentifier:
                     description: HSMClientCertificateIdentifier specifies the name of the HSM client certificate the Amazon Redshift cluster uses to retrieve the data encryption keys stored in an HSM.
@@ -174,7 +174,7 @@ spec:
                     type: string
                   manualSnapshotRetentionPeriod:
                     description: ManualSnapshotRetentionPeriod is the default number of days to retain a manual snapshot. If the value is -1, the snapshot is retained indefinitely. This setting doesn't change the retention period of existing snapshots. default=1
-                    format: int64
+                    format: int32
                     maximum: 3653
                     type: integer
                   masterUsername:
@@ -191,13 +191,13 @@ spec:
                     type: string
                   numberOfNodes:
                     description: NumberOfNodes defines the number of compute nodes in the cluster. This parameter is required when the ClusterType parameter is specified as multi-node. For information about determining how many nodes you need, go to Working with Clusters (https://docs.aws.amazon.com/redshift/latest/mgmt/working-with-clusters.html#how-many-nodes) in the Amazon Redshift Cluster Management Guide. If you don't specify this parameter, you get a single-node cluster. When requesting a multi-node cluster, you must specify the number of nodes that you want in the cluster. default=1
-                    format: int64
+                    format: int32
                     maximum: 100
                     minimum: 1
                     type: integer
                   port:
                     description: Port specifies the port number on which the cluster accepts incoming connections. The cluster is accessible only via the JDBC and ODBC connection strings. Part of the connection string requires the port on which the cluster will listen for incoming connections. default=5439
-                    format: int64
+                    format: int32
                     maximum: 65535
                     minimum: 1150
                     type: integer
@@ -372,7 +372,7 @@ spec:
                         type: string
                       manualSnapshotRetentionPeriod:
                         description: "The number of days that automated snapshots are retained in the destination region after they are copied from a source region. If the value is -1, the manual snapshot is retained indefinitely. \n The value must be either -1 or an integer between 1 and 3,653."
-                        format: int64
+                        format: int32
                         type: integer
                       retentionPeriod:
                         description: The number of days that automated snapshots are retained in the destination region after they are copied from a source region.
@@ -450,7 +450,7 @@ spec:
                         type: string
                       port:
                         description: Port specifies the port that the database engine is listening on.
-                        format: int64
+                        format: int32
                         type: integer
                     type: object
                   expectedNextSnapshotScheduleTime:

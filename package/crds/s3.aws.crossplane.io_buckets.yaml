@@ -103,7 +103,7 @@ spec:
                               type: array
                             maxAgeSeconds:
                               description: The time in seconds that your browser is to cache the preflight response for the specified resource.
-                              format: int64
+                              format: int32
                               type: integer
                           required:
                           - allowedMethods
@@ -141,7 +141,7 @@ spec:
                               properties:
                                 daysAfterInitiation:
                                   description: Specifies the number of days after which Amazon S3 aborts an incomplete multipart upload.
-                                  format: int64
+                                  format: int32
                                   type: integer
                               required:
                               - daysAfterInitiation
@@ -155,7 +155,7 @@ spec:
                                   type: string
                                 days:
                                   description: Indicates the lifetime, in days, of the objects that are subject to the rule. The value must be a non-zero positive integer.
-                                  format: int64
+                                  format: int32
                                   minimum: 1
                                   type: integer
                                 expiredObjectDeleteMarker:
@@ -215,7 +215,7 @@ spec:
                               properties:
                                 noncurrentDays:
                                   description: Specifies the number of days an object is noncurrent before Amazon S3 can perform the associated action. For information about the noncurrent days calculations, see How Amazon S3 Calculates When an Object Became Noncurrent (https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html#non-current-days-calculations) in the Amazon Simple Storage Service Developer Guide.
-                                  format: int64
+                                  format: int32
                                   type: integer
                               type: object
                             noncurrentVersionTransitions:
@@ -225,7 +225,7 @@ spec:
                                 properties:
                                   noncurrentDays:
                                     description: Specifies the number of days an object is noncurrent before Amazon S3 can perform the associated action. For information about the noncurrent days calculations, see How Amazon S3 Calculates How Long an Object Has Been Noncurrent (https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html#non-current-days-calculations) in the Amazon Simple Storage Service Developer Guide.
-                                    format: int64
+                                    format: int32
                                     type: integer
                                   storageClass:
                                     description: 'The class of storage used to store the object. Valid values are: GLACIER, STANDARD_IA, ONEZONE_IA, INTELLIGENT_TIERING, DEEP_ARCHIVE'
@@ -257,7 +257,7 @@ spec:
                                     type: string
                                   days:
                                     description: Indicates the number of days after creation when objects are transitioned to the specified storage class. The value must be a positive integer.
-                                    format: int64
+                                    format: int32
                                     minimum: 1
                                     type: integer
                                   storageClass:
@@ -659,7 +659,7 @@ spec:
                                       properties:
                                         minutes:
                                           description: "Contains an integer specifying time in minutes. \n Valid values: 15 minutes."
-                                          format: int64
+                                          format: int32
                                           type: integer
                                       required:
                                       - minutes
@@ -688,7 +688,7 @@ spec:
                                       properties:
                                         minutes:
                                           description: "Contains an integer specifying time in minutes. \n Valid values: 15 minutes."
-                                          format: int64
+                                          format: int32
                                           type: integer
                                       required:
                                       - minutes
@@ -767,7 +767,7 @@ spec:
                               type: string
                             priority:
                               description: "The priority associated with the rule. If you specify multiple rules in a replication configuration, Amazon S3 prioritizes the rules to prevent conflicts when filtering. If two or more rules identify the same object based on a specified filter, the rule with higher priority takes precedence. For example: \n    * Same object quality prefix-based filter criteria if prefixes you specified    in multiple rules overlap \n    * Same object qualify tag-based filter criteria specified in multiple    rules \n For more information, see Replication (https://docs.aws.amazon.com/AmazonS3/latest/dev/replication.html) in the Amazon Simple Storage Service Developer Guide."
-                              format: int64
+                              format: int32
                               type: integer
                             sourceSelectionCriteria:
                               description: A container that describes additional filters for identifying the source objects that you want to replicate. You can choose to enable or disable the replication of these objects. Currently, Amazon S3 supports only the filter that you can specify for objects created with server-side encryption using a customer master key (CMK) stored in AWS Key Management Service (SSE-KMS).
