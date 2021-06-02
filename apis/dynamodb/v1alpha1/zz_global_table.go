@@ -19,9 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+
+	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 )
 
 // GlobalTableParameters defines the desired state of GlobalTable
@@ -29,9 +30,13 @@ type GlobalTableParameters struct {
 	// Region is which region the GlobalTable will be created.
 	// +kubebuilder:validation:Required
 	Region string `json:"region"`
+
 	// The Regions where the global table needs to be created.
 	// +kubebuilder:validation:Required
-	ReplicationGroup            []*Replica `json:"replicationGroup"`
+	ReplicationGroup []*Replica `json:"replicationGroup"`
+
+	// CustomGlobalTableParameters includes the additional fields on top of
+	// the generated ones.
 	CustomGlobalTableParameters `json:",inline"`
 }
 

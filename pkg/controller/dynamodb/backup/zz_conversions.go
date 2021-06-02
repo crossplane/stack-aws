@@ -25,9 +25,6 @@ import (
 	svcapitypes "github.com/crossplane/provider-aws/apis/dynamodb/v1alpha1"
 )
 
-// NOTE(muvaf): We return pointers in case the function needs to start with an
-// empty object, hence need to return a new pointer.
-
 // GenerateDescribeBackupInput returns input for read
 // operation.
 func GenerateDescribeBackupInput(cr *svcapitypes.Backup) *svcsdk.DescribeBackupInput {
@@ -47,12 +44,25 @@ func GenerateBackup(resp *svcsdk.DescribeBackupOutput) *svcapitypes.Backup {
 	return cr
 }
 
+func lateInitialize(cr *svcapitypes.Backup, resp *svcsdk.DescribeBackupOutput) error {
+
+	return nil
+}
+
+func basicUpToDateCheck(cr *svcapitypes.Backup, resp *svcsdk.DescribeBackupOutput) bool {
+
+	return true
+}
+
 // GenerateCreateBackupInput returns a create input.
 func GenerateCreateBackupInput(cr *svcapitypes.Backup) *svcsdk.CreateBackupInput {
 	res := &svcsdk.CreateBackupInput{}
 
 	if cr.Spec.ForProvider.BackupName != nil {
 		res.SetBackupName(*cr.Spec.ForProvider.BackupName)
+	}
+	if cr.Spec.ForProvider.TableName != nil {
+		res.SetTableName(*cr.Spec.ForProvider.TableName)
 	}
 
 	return res
