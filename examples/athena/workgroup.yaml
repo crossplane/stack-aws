@@ -1,0 +1,14 @@
+apiVersion: athena.aws.crossplane.io/v1alpha1
+kind: WorkGroup
+metadata:
+  name: crossplane-workgroup
+spec:
+  forProvider:
+    description: crossplane-workgroup
+    name: crossplane-workgroup
+    region: eu-central-1
+    tags:
+      - key: key
+        value: value
+  providerConfigRef:
+    name: default

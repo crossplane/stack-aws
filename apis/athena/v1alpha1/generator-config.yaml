@@ -1,0 +1,10 @@
+ignore:
+  resource_names:
+    - DataCatalog
+    - NamedQuery
+resources:
+  WorkGroup:
+    exceptions:
+      errors:
+        404:
+          code: InvalidRequestException
