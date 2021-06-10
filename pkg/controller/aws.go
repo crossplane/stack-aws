@@ -40,6 +40,7 @@ import (
 	"github.com/crossplane/provider-aws/pkg/controller/cache"
 	"github.com/crossplane/provider-aws/pkg/controller/cache/cachesubnetgroup"
 	"github.com/crossplane/provider-aws/pkg/controller/cache/cluster"
+	"github.com/crossplane/provider-aws/pkg/controller/cloudfront/distribution"
 	"github.com/crossplane/provider-aws/pkg/controller/config"
 	"github.com/crossplane/provider-aws/pkg/controller/database"
 	"github.com/crossplane/provider-aws/pkg/controller/database/dbsubnetgroup"
@@ -72,17 +73,23 @@ import (
 	"github.com/crossplane/provider-aws/pkg/controller/identity/iamrolepolicyattachment"
 	"github.com/crossplane/provider-aws/pkg/controller/identity/iamuser"
 	"github.com/crossplane/provider-aws/pkg/controller/identity/iamuserpolicyattachment"
+	"github.com/crossplane/provider-aws/pkg/controller/identity/openidconnectprovider"
 	"github.com/crossplane/provider-aws/pkg/controller/kms/key"
+	"github.com/crossplane/provider-aws/pkg/controller/lambda/function"
 	"github.com/crossplane/provider-aws/pkg/controller/notification/snssubscription"
 	"github.com/crossplane/provider-aws/pkg/controller/notification/snstopic"
 	"github.com/crossplane/provider-aws/pkg/controller/rds/dbcluster"
 	"github.com/crossplane/provider-aws/pkg/controller/rds/dbparametergroup"
+	"github.com/crossplane/provider-aws/pkg/controller/rds/globalcluster"
 	"github.com/crossplane/provider-aws/pkg/controller/redshift"
 	"github.com/crossplane/provider-aws/pkg/controller/route53/hostedzone"
 	"github.com/crossplane/provider-aws/pkg/controller/route53/resourcerecordset"
 	"github.com/crossplane/provider-aws/pkg/controller/s3"
 	"github.com/crossplane/provider-aws/pkg/controller/s3/bucketpolicy"
 	"github.com/crossplane/provider-aws/pkg/controller/secretsmanager/secret"
+	"github.com/crossplane/provider-aws/pkg/controller/servicediscovery/httpnamespace"
+	"github.com/crossplane/provider-aws/pkg/controller/servicediscovery/privatednsnamespace"
+	"github.com/crossplane/provider-aws/pkg/controller/servicediscovery/publicdnsnamespace"
 	"github.com/crossplane/provider-aws/pkg/controller/sfn/activity"
 	"github.com/crossplane/provider-aws/pkg/controller/sfn/statemachine"
 	"github.com/crossplane/provider-aws/pkg/controller/sqs/queue"
@@ -154,8 +161,15 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 		filesystem.SetupFileSystem,
 		dbcluster.SetupDBCluster,
 		dbparametergroup.SetupDBParameterGroup,
+		globalcluster.SetupGlobalCluster,
 		vpccidrblock.SetupVPCCIDRBlock,
 		route.SetupRoute,
+		privatednsnamespace.SetupPrivateDNSNamespace,
+		publicdnsnamespace.SetupPublicDNSNamespace,
+		httpnamespace.SetupHTTPNamespace,
+		function.SetupFunction,
+		openidconnectprovider.SetupOpenIDConnectProvider,
+		distribution.SetupDistribution,
 	} {
 		if err := setup(mgr, l, rl); err != nil {
 			return err
