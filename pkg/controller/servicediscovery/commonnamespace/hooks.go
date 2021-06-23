@@ -131,15 +131,16 @@ func (h *Hooks) Observe(ctx context.Context, mg cpresource.Managed) (managed.Ext
 			awsclient.Wrap(cpresource.Ignore(ActualIsNotFound, err), errGetNamespace)
 	}
 
+	cr.SetConditions(xpv1.Available())
+
 	lateInited := false
 	if awsclient.StringValue(cr.GetDescription()) == "" {
 		if awsclient.StringValue(nsReqResp.Namespace.Description) != "" {
 			cr.SetDescription(nsReqResp.Namespace.Description)
+			// set READY false
 			lateInited = true
 		}
 	}
-
-	cr.SetConditions(xpv1.Available())
 
 	return managed.ExternalObservation{
 		ResourceExists:          true,
