@@ -48,3 +48,23 @@ type CustomFileSystemParameters struct {
 	// +optional
 	KMSKeyIDSelector *xpv1.Selector `json:"kmsKeyIdSelector,omitempty"`
 }
+
+// CustomMountTargetParameters contains the additional fields for MountTargetParameters.
+type CustomMountTargetParameters struct {
+
+	// Up to five VPC security group IDs, of the form sg-xxxxxxxx. These must be
+	// for the same VPC as subnet specified.
+	// +immutable
+	// +optional
+	SecurityGroups []string `json:"securityGroups,omitempty"`
+
+	// SecurityGroupIDRefs are references to SecurityGroups used to set
+	// the SecurityGroupIDs.
+	// +optional
+	SecurityGroupsRefs []xpv1.Reference `json:"securityGroupsRefs,omitempty"`
+
+	// SecurityGroupIDSelector selects references to SecurityGroups used
+	// to set the SecurityGroupIDs.
+	// +optional
+	SecurityGroupsSelector *xpv1.Selector `json:"securityGroupsSelector,omitempty"`
+}

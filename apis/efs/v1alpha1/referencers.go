@@ -24,6 +24,7 @@ import (
 
 	"github.com/crossplane/crossplane-runtime/pkg/reference"
 
+	network "github.com/crossplane/provider-aws/apis/ec2/v1beta1"
 	"github.com/crossplane/provider-aws/apis/kms/v1alpha1"
 )
 
@@ -44,5 +45,25 @@ func (mg *FileSystem) ResolveReferences(ctx context.Context, c client.Reader) er
 	}
 	mg.Spec.ForProvider.KMSKeyID = reference.ToPtrValue(rsp.ResolvedValue)
 	mg.Spec.ForProvider.KMSKeyIDRef = rsp.ResolvedReference
+	return nil
+}
+
+// ResolveReferences of this MountTarget
+func (mg *MountTarget) ResolveReferences(ctx context.Context, c client.Reader) error {
+	r := reference.NewAPIResolver(c, mg)
+
+	// Resolve spec.forProvider.securityGroups
+	mrsp, err := r.ResolveMultiple(ctx, reference.MultiResolutionRequest{
+		CurrentValues: mg.Spec.ForProvider.SecurityGroups,
+		References:    mg.Spec.ForProvider.SecurityGroupsRefs,
+		Selector:      mg.Spec.ForProvider.SecurityGroupsSelector,
+		To:            reference.To{Managed: &network.SecurityGroup{}, List: &network.SecurityGroupList{}},
+		Extract:       reference.ExternalName(),
+	})
+	if err != nil {
+		return errors.Wrap(err, "spec.forProvider.securityGroups")
+	}
+	mg.Spec.ForProvider.SecurityGroups = mrsp.ResolvedValues
+	mg.Spec.ForProvider.SecurityGroupsRefs = mrsp.ResolvedReferences
 	return nil
 }
