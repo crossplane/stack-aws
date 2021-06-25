@@ -39,7 +39,7 @@ import (
 	"github.com/crossplane/provider-aws/pkg/controller/apigatewayv2/routeresponse"
 	"github.com/crossplane/provider-aws/pkg/controller/apigatewayv2/stage"
 	"github.com/crossplane/provider-aws/pkg/controller/apigatewayv2/vpclink"
-	athenaWorkgroup "github.com/crossplane/provider-aws/pkg/controller/athena/workgroup"
+	athenaworkgroup "github.com/crossplane/provider-aws/pkg/controller/athena/workgroup"
 	"github.com/crossplane/provider-aws/pkg/controller/cache"
 	"github.com/crossplane/provider-aws/pkg/controller/cache/cachesubnetgroup"
 	"github.com/crossplane/provider-aws/pkg/controller/cache/cluster"
@@ -175,11 +175,8 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter, poll ti
 		distribution.SetupDistribution,
 		resolverendpoint.SetupResolverEndpoint,
 		resolverrule.SetupResolverRule,
-<<<<<<< HEAD
 		kafkacluster.SetupCluster,
-=======
-		athenaWorkgroup.SetupWorkGroup,
->>>>>>> a15d2013 (added athena workgroup object)
+		athenaworkgroup.SetupWorkGroup,
 	} {
 		if err := setup(mgr, l, rl, poll); err != nil {
 			return err

@@ -72,7 +72,14 @@ func postObserve(_ context.Context, cr *svcapitypes.WorkGroup, obj *svcsdk.GetWo
 	if err != nil {
 		return managed.ExternalObservation{}, err
 	}
-	cr.SetConditions(xpv1.Available())
+
+	switch awsclients.StringValue(obj.WorkGroup.State) {
+	case string(svcapitypes.WorkGroupState_ENABLED):
+		cr.SetConditions(xpv1.Available())
+	case string(svcapitypes.WorkGroupState_DISABLED):
+		cr.SetConditions(xpv1.Unavailable())
+	}
+
 	return obs, nil
 }
 
@@ -80,6 +87,7 @@ func postCreate(_ context.Context, cr *svcapitypes.WorkGroup, obj *svcsdk.Create
 	if err != nil {
 		return managed.ExternalCreation{}, err
 	}
+	// CreateWorkGroupOutput is empty
 	meta.SetExternalName(cr, cr.Name)
-	return managed.ExternalCreation{ExternalNameAssigned: true}, nil
+	return managed.ExternalCreation{ExternalNameAssigned: false}, nil
 }

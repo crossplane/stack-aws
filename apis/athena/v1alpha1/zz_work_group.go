@@ -60,7 +60,7 @@ type WorkGroupObservation struct {
 // WorkGroupStatus defines the observed state of WorkGroup.
 type WorkGroupStatus struct {
 	xpv1.ResourceStatus `json:",inline"`
-	AtProvider          WorkGroupObservation `json:"atProvider"`
+	AtProvider          WorkGroupObservation `json:"atProvider,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -74,7 +74,7 @@ type WorkGroupStatus struct {
 type WorkGroup struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              WorkGroupSpec   `json:"spec,omitempty"`
+	Spec              WorkGroupSpec   `json:"spec"`
 	Status            WorkGroupStatus `json:"status,omitempty"`
 }
 
