@@ -42,6 +42,7 @@ func SetupWorkGroup(mgr ctrl.Manager, l logging.Logger, limiter workqueue.RateLi
 			e.postObserve = postObserve
 			e.preDelete = preDelete
 			e.postCreate = postCreate
+			e.lateInitialize = LateInitialize
 		},
 	}
 	return ctrl.NewControllerManagedBy(mgr).
@@ -90,4 +91,24 @@ func postCreate(_ context.Context, cr *svcapitypes.WorkGroup, obj *svcsdk.Create
 	// CreateWorkGroupOutput is empty
 	meta.SetExternalName(cr, cr.Name)
 	return managed.ExternalCreation{ExternalNameAssigned: false}, nil
+}
+
+// LateInitialize fills the empty fields in *svcapitypes.WorkGroupParameters with
+// the values seen in svcsdk.GetWorkGroupOutput.
+// nolint:gocyclo
+func LateInitialize(cr *svcapitypes.WorkGroupParameters, obj *svcsdk.GetWorkGroupOutput) error {
+
+	if cr.Configuration == nil && obj.WorkGroup.Configuration != nil {
+		cr.Configuration = &svcapitypes.WorkGroupConfiguration{
+			EnforceWorkGroupConfiguration:   obj.WorkGroup.Configuration.EnforceWorkGroupConfiguration,
+			PublishCloudWatchMetricsEnabled: obj.WorkGroup.Configuration.PublishCloudWatchMetricsEnabled,
+			RequesterPaysEnabled:            obj.WorkGroup.Configuration.RequesterPaysEnabled,
+			EngineVersion: &svcapitypes.EngineVersion{
+				SelectedEngineVersion:  obj.WorkGroup.Configuration.EngineVersion.SelectedEngineVersion,
+				EffectiveEngineVersion: obj.WorkGroup.Configuration.EngineVersion.EffectiveEngineVersion,
+			},
+		}
+	}
+
+	return nil
 }
