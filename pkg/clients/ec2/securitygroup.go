@@ -33,6 +33,7 @@ type SecurityGroupClient interface {
 	DescribeSecurityGroupsRequest(input *ec2.DescribeSecurityGroupsInput) ec2.DescribeSecurityGroupsRequest
 	AuthorizeSecurityGroupIngressRequest(input *ec2.AuthorizeSecurityGroupIngressInput) ec2.AuthorizeSecurityGroupIngressRequest
 	AuthorizeSecurityGroupEgressRequest(input *ec2.AuthorizeSecurityGroupEgressInput) ec2.AuthorizeSecurityGroupEgressRequest
+	RevokeSecurityGroupIngressRequest(input *ec2.RevokeSecurityGroupIngressInput) ec2.RevokeSecurityGroupIngressRequest
 	RevokeSecurityGroupEgressRequest(input *ec2.RevokeSecurityGroupEgressInput) ec2.RevokeSecurityGroupEgressRequest
 	CreateTagsRequest(input *ec2.CreateTagsInput) ec2.CreateTagsRequest
 	DeleteTagsRequest(input *ec2.DeleteTagsInput) ec2.DeleteTagsRequest

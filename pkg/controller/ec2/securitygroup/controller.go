@@ -18,6 +18,7 @@ package securitygroup
 
 import (
 	"context"
+	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsec2 "github.com/aws/aws-sdk-go-v2/service/ec2"
@@ -53,9 +54,9 @@ const (
 	errAuthorizeEgress  = "failed to authorize egress rules"
 	errDelete           = "failed to delete the SecurityGroup resource"
 	errSpecUpdate       = "cannot update spec of the SecurityGroup custom resource"
-	errRevokeEgress     = "cannot remove the default egress rule"
+	errRevokeEgress     = "failed to revoke egress rules"
+	errRevokeIngress    = "failed to revoke ingress rules"
 	errStatusUpdate     = "cannot update status of the SecurityGroup custom resource"
-	errUpdate           = "failed to update the SecurityGroup resource"
 	errCreateTags       = "failed to create tags for the Security Group resource"
 	errDeleteTags       = "failed to delete tags for the Security Group resource"
 )
@@ -211,11 +212,6 @@ func (e *external) Update(ctx context.Context, mgd resource.Managed) (managed.Ex
 		return managed.ExternalUpdate{}, awsclient.Wrap(resource.Ignore(ec2.IsSecurityGroupNotFoundErr, err), errDescribe)
 	}
 
-	patch, err := ec2.CreateSGPatch(response.SecurityGroups[0], cr.Spec.ForProvider)
-	if err != nil {
-		return managed.ExternalUpdate{}, errors.New(errUpdate)
-	}
-
 	add, remove := awsclient.DiffEC2Tags(v1beta1.GenerateEC2Tags(cr.Spec.ForProvider.Tags), response.SecurityGroups[0].Tags)
 	if len(remove) > 0 {
 		if _, err := e.sg.DeleteTagsRequest(&awsec2.DeleteTagsInput{
@@ -235,21 +231,48 @@ func (e *external) Update(ctx context.Context, mgd resource.Managed) (managed.Ex
 		}
 	}
 
-	if patch.Ingress != nil {
-		if _, err := e.sg.AuthorizeSecurityGroupIngressRequest(&awsec2.AuthorizeSecurityGroupIngressInput{
-			GroupId:       aws.String(meta.GetExternalName(cr)),
-			IpPermissions: ec2.GenerateEC2Permissions(cr.Spec.ForProvider.Ingress),
-		}).Send(ctx); err != nil && !ec2.IsRuleAlreadyExistsErr(err) {
-			return managed.ExternalUpdate{}, awsclient.Wrap(err, errAuthorizeIngress)
+	{
+		add, remove := diffPermissions(ec2.GenerateEC2Permissions(cr.Spec.ForProvider.Ingress), response.SecurityGroups[0].IpPermissions)
+		if len(remove) > 0 {
+			if _, err := e.sg.RevokeSecurityGroupIngressRequest(&awsec2.RevokeSecurityGroupIngressInput{
+				GroupId:       aws.String(meta.GetExternalName(cr)),
+				IpPermissions: remove,
+			}).Send(ctx); err != nil {
+				log.Println(err)
+				return managed.ExternalUpdate{}, awsclient.Wrap(err, errRevokeIngress)
+			}
+		}
+		if len(add) > 0 {
+			for _, perm := range add { // TODO: to loop or not? looping is more api calls, slower, but in the end we are more likely to get what the user wants in case there is a bug in the controller..
+				if _, err := e.sg.AuthorizeSecurityGroupIngressRequest(&awsec2.AuthorizeSecurityGroupIngressInput{
+					GroupId:       aws.String(meta.GetExternalName(cr)),
+					IpPermissions: []awsec2.IpPermission{perm},
+				}).Send(ctx); err != nil {
+					log.Println(err)
+					return managed.ExternalUpdate{}, awsclient.Wrap(err, errAuthorizeIngress)
+				}
+			}
 		}
 	}
 
-	if patch.Egress != nil {
-		if _, err = e.sg.AuthorizeSecurityGroupEgressRequest(&awsec2.AuthorizeSecurityGroupEgressInput{
-			GroupId:       aws.String(meta.GetExternalName(cr)),
-			IpPermissions: ec2.GenerateEC2Permissions(cr.Spec.ForProvider.Egress),
-		}).Send(ctx); err != nil && !ec2.IsRuleAlreadyExistsErr(err) {
-			return managed.ExternalUpdate{}, awsclient.Wrap(err, errAuthorizeEgress)
+	{
+		add, remove := diffPermissions(ec2.GenerateEC2Permissions(cr.Spec.ForProvider.Egress), response.SecurityGroups[0].IpPermissionsEgress)
+		if len(remove) > 0 {
+			if _, err = e.sg.RevokeSecurityGroupEgressRequest(&awsec2.RevokeSecurityGroupEgressInput{
+				GroupId:       aws.String(meta.GetExternalName(cr)),
+				IpPermissions: remove,
+			}).Send(ctx); err != nil {
+				return managed.ExternalUpdate{}, awsclient.Wrap(err, errRevokeEgress)
+			}
+		}
+
+		if len(add) > 0 {
+			if _, err = e.sg.AuthorizeSecurityGroupEgressRequest(&awsec2.AuthorizeSecurityGroupEgressInput{
+				GroupId:       aws.String(meta.GetExternalName(cr)),
+				IpPermissions: add,
+			}).Send(ctx); err != nil && !ec2.IsRuleAlreadyExistsErr(err) {
+				return managed.ExternalUpdate{}, awsclient.Wrap(err, errAuthorizeEgress)
+			}
 		}
 	}
 
