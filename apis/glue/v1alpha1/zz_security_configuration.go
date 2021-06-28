@@ -53,7 +53,7 @@ type SecurityConfigurationObservation struct {
 // SecurityConfigurationStatus defines the observed state of SecurityConfiguration.
 type SecurityConfigurationStatus struct {
 	xpv1.ResourceStatus `json:",inline"`
-	AtProvider          SecurityConfigurationObservation `json:"atProvider"`
+	AtProvider          SecurityConfigurationObservation `json:"atProvider,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -67,7 +67,7 @@ type SecurityConfigurationStatus struct {
 type SecurityConfiguration struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              SecurityConfigurationSpec   `json:"spec,omitempty"`
+	Spec              SecurityConfigurationSpec   `json:"spec"`
 	Status            SecurityConfigurationStatus `json:"status,omitempty"`
 }
 

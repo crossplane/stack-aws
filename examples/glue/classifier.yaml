@@ -4,7 +4,7 @@ metadata:
   name: glue-classifier
 spec:
   forProvider:
-    region: eu-central-1
+    region: us-east-1
     csvClassifier:
       delimiter: ","
       quoteSymbol: "\""
@@ -13,4 +13,4 @@ spec:
       disableValueTrimming: true 
       allowSingleColumn: false
   providerConfigRef:
-    name: default
+    name: example

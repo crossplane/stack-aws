@@ -5,7 +5,7 @@ metadata:
 spec:
   forProvider:
     name: glue-securityconfiguration
-    region: eu-central-1
+    region: us-east-1
     encryptionConfiguration:
       cloudWatchEncryption:
         cloudWatchEncryptionMode: SSE-KMS
@@ -16,4 +16,4 @@ spec:
       - kmsKeyARN: arn:aws:kms:eu-central-1:<aws-id>:key/eb94c3a4-f6e2-468a-afad-eb65dc2848a1
         s3EncryptionMode: SSE-KMS
   providerConfigRef:
-    name: default
+    name: example

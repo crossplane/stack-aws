@@ -4,8 +4,8 @@ metadata:
   name: glue-database
 spec:
   forProvider:
-    region: eu-central-1
+    region: us-east-1
     databaseInput: 
       name: "glue-database"
   providerConfigRef:
-    name: default
+    name: example

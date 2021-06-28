@@ -51,7 +51,7 @@ type ConnectionObservation struct {
 // ConnectionStatus defines the observed state of Connection.
 type ConnectionStatus struct {
 	xpv1.ResourceStatus `json:",inline"`
-	AtProvider          ConnectionObservation `json:"atProvider"`
+	AtProvider          ConnectionObservation `json:"atProvider,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -65,7 +65,7 @@ type ConnectionStatus struct {
 type Connection struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              ConnectionSpec   `json:"spec,omitempty"`
+	Spec              ConnectionSpec   `json:"spec"`
 	Status            ConnectionStatus `json:"status,omitempty"`
 }
 

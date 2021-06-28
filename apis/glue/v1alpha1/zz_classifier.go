@@ -53,7 +53,7 @@ type ClassifierObservation struct {
 // ClassifierStatus defines the observed state of Classifier.
 type ClassifierStatus struct {
 	xpv1.ResourceStatus `json:",inline"`
-	AtProvider          ClassifierObservation `json:"atProvider"`
+	AtProvider          ClassifierObservation `json:"atProvider,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -67,7 +67,7 @@ type ClassifierStatus struct {
 type Classifier struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              ClassifierSpec   `json:"spec,omitempty"`
+	Spec              ClassifierSpec   `json:"spec"`
 	Status            ClassifierStatus `json:"status,omitempty"`
 }
 

@@ -88,7 +88,7 @@ type CrawlerObservation struct {
 // CrawlerStatus defines the observed state of Crawler.
 type CrawlerStatus struct {
 	xpv1.ResourceStatus `json:",inline"`
-	AtProvider          CrawlerObservation `json:"atProvider"`
+	AtProvider          CrawlerObservation `json:"atProvider,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -102,7 +102,7 @@ type CrawlerStatus struct {
 type Crawler struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              CrawlerSpec   `json:"spec,omitempty"`
+	Spec              CrawlerSpec   `json:"spec"`
 	Status            CrawlerStatus `json:"status,omitempty"`
 }
 

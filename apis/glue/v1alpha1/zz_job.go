@@ -149,7 +149,7 @@ type JobObservation struct {
 // JobStatus defines the observed state of Job.
 type JobStatus struct {
 	xpv1.ResourceStatus `json:",inline"`
-	AtProvider          JobObservation `json:"atProvider"`
+	AtProvider          JobObservation `json:"atProvider,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -163,7 +163,7 @@ type JobStatus struct {
 type Job struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              JobSpec   `json:"spec,omitempty"`
+	Spec              JobSpec   `json:"spec"`
 	Status            JobStatus `json:"status,omitempty"`
 }
 

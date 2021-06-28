@@ -51,7 +51,7 @@ type DatabaseObservation struct {
 // DatabaseStatus defines the observed state of Database.
 type DatabaseStatus struct {
 	xpv1.ResourceStatus `json:",inline"`
-	AtProvider          DatabaseObservation `json:"atProvider"`
+	AtProvider          DatabaseObservation `json:"atProvider,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -65,7 +65,7 @@ type DatabaseStatus struct {
 type Database struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-	Spec              DatabaseSpec   `json:"spec,omitempty"`
+	Spec              DatabaseSpec   `json:"spec"`
 	Status            DatabaseStatus `json:"status,omitempty"`
 }
 
