@@ -33,8 +33,8 @@ import (
 func GenerateDescribeMountTargetsInput(cr *svcapitypes.MountTarget) *svcsdk.DescribeMountTargetsInput {
 	res := &svcsdk.DescribeMountTargetsInput{}
 
-	if cr.Spec.ForProvider.FileSystemID != nil {
-		res.SetFileSystemId(*cr.Spec.ForProvider.FileSystemID)
+	if cr.Status.AtProvider.FileSystemID != nil {
+		res.SetFileSystemId(*cr.Status.AtProvider.FileSystemID)
 	}
 	if cr.Status.AtProvider.MountTargetID != nil {
 		res.SetMountTargetId(*cr.Status.AtProvider.MountTargetID)
@@ -60,9 +60,9 @@ func GenerateMountTarget(resp *svcsdk.DescribeMountTargetsOutput) *svcapitypes.M
 			cr.Status.AtProvider.AvailabilityZoneName = nil
 		}
 		if elem.FileSystemId != nil {
-			cr.Spec.ForProvider.FileSystemID = elem.FileSystemId
+			cr.Status.AtProvider.FileSystemID = elem.FileSystemId
 		} else {
-			cr.Spec.ForProvider.FileSystemID = nil
+			cr.Status.AtProvider.FileSystemID = nil
 		}
 		if elem.IpAddress != nil {
 			cr.Spec.ForProvider.IPAddress = elem.IpAddress
@@ -90,9 +90,9 @@ func GenerateMountTarget(resp *svcsdk.DescribeMountTargetsOutput) *svcapitypes.M
 			cr.Status.AtProvider.OwnerID = nil
 		}
 		if elem.SubnetId != nil {
-			cr.Spec.ForProvider.SubnetID = elem.SubnetId
+			cr.Status.AtProvider.SubnetID = elem.SubnetId
 		} else {
-			cr.Spec.ForProvider.SubnetID = nil
+			cr.Status.AtProvider.SubnetID = nil
 		}
 		if elem.VpcId != nil {
 			cr.Status.AtProvider.VPCID = elem.VpcId
@@ -113,14 +113,8 @@ func GenerateMountTarget(resp *svcsdk.DescribeMountTargetsOutput) *svcapitypes.M
 func GenerateCreateMountTargetInput(cr *svcapitypes.MountTarget) *svcsdk.CreateMountTargetInput {
 	res := &svcsdk.CreateMountTargetInput{}
 
-	if cr.Spec.ForProvider.FileSystemID != nil {
-		res.SetFileSystemId(*cr.Spec.ForProvider.FileSystemID)
-	}
 	if cr.Spec.ForProvider.IPAddress != nil {
 		res.SetIpAddress(*cr.Spec.ForProvider.IPAddress)
-	}
-	if cr.Spec.ForProvider.SubnetID != nil {
-		res.SetSubnetId(*cr.Spec.ForProvider.SubnetID)
 	}
 
 	return res

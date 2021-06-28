@@ -28,6 +28,7 @@ func SetupMountTarget(mgr ctrl.Manager, l logging.Logger, limiter workqueue.Rate
 			e.postCreate = postCreate
 			e.preObserve = preObserve
 			e.postObserve = postObserve
+			e.preCreate = preCreate
 		},
 	}
 	return ctrl.NewControllerManagedBy(mgr).
@@ -42,6 +43,12 @@ func SetupMountTarget(mgr ctrl.Manager, l logging.Logger, limiter workqueue.Rate
 			managed.WithExternalConnecter(&connector{kube: mgr.GetClient(), opts: opts}),
 			managed.WithLogger(l.WithValues("controller", name)),
 			managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name)))))
+}
+
+func preCreate(_ context.Context, cr *svcapitypes.MountTarget, obj *svcsdk.CreateMountTargetInput) error {
+	obj.FileSystemId = cr.Spec.ForProvider.FileSystemID
+	obj.SubnetId = cr.Spec.ForProvider.SubnetID
+	return nil
 }
 
 func postCreate(_ context.Context, cr *svcapitypes.MountTarget, obj *svcsdk.MountTargetDescription, _ managed.ExternalCreation, err error) (managed.ExternalCreation, error) {

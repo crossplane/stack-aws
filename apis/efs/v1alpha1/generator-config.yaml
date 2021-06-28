@@ -7,6 +7,8 @@ ignore:
     - UpdateFileSystemInput.ProvisionedThroughputInMibps
     - FileSystemDescription.ProvisionedThroughputInMibps
     - CreateMountTargetInput.SecurityGroups
+    - CreateMountTargetInput.FileSystemId
+    - CreateMountTargetInput.SubnetId
 resources:
   MountTarget:
     exceptions:

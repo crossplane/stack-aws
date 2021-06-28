@@ -128,6 +128,11 @@ func (e *external) Create(ctx context.Context, mg cpresource.Managed) (managed.E
 	} else {
 		cr.Status.AtProvider.AvailabilityZoneName = nil
 	}
+	if resp.FileSystemId != nil {
+		cr.Status.AtProvider.FileSystemID = resp.FileSystemId
+	} else {
+		cr.Status.AtProvider.FileSystemID = nil
+	}
 	if resp.LifeCycleState != nil {
 		cr.Status.AtProvider.LifeCycleState = resp.LifeCycleState
 	} else {
@@ -147,6 +152,11 @@ func (e *external) Create(ctx context.Context, mg cpresource.Managed) (managed.E
 		cr.Status.AtProvider.OwnerID = resp.OwnerId
 	} else {
 		cr.Status.AtProvider.OwnerID = nil
+	}
+	if resp.SubnetId != nil {
+		cr.Status.AtProvider.SubnetID = resp.SubnetId
+	} else {
+		cr.Status.AtProvider.SubnetID = nil
 	}
 	if resp.VpcId != nil {
 		cr.Status.AtProvider.VPCID = resp.VpcId

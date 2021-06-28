@@ -5,8 +5,10 @@ metadata:
 spec:
   forProvider:
     region: us-east-1
-    fileSystemID: fs-0668c05d
-    subnetID: subnet-f2ccb898
+    fileSystemIDRef: 
+      name: example
+    subnetIDRef:
+      name: sample-subnet1
     securityGroupsRefs:
       - name: sample-cluster-sg
   providerConfigRef:

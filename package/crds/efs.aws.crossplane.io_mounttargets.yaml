@@ -57,6 +57,27 @@ spec:
                   fileSystemID:
                     description: The ID of the file system for which to create the mount target.
                     type: string
+                  fileSystemIDRef:
+                    description: FileSystemIDRef are references to Filesystem used to set the FileSystemID.
+                    properties:
+                      name:
+                        description: Name of the referenced object.
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  fileSystemIDSelector:
+                    description: FileSystemIDSelector selects references to Filesystem used to set the FileSystemID.
+                    properties:
+                      matchControllerRef:
+                        description: MatchControllerRef ensures an object with the same controller reference as the selecting object is selected.
+                        type: boolean
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: MatchLabels ensures an object with matching labels is selected.
+                        type: object
+                    type: object
                   ipAddress:
                     description: Valid IPv4 address within the address range of the specified subnet.
                     type: string
@@ -95,10 +116,29 @@ spec:
                   subnetID:
                     description: The ID of the subnet to add the mount target in.
                     type: string
+                  subnetIDRef:
+                    description: SubnetIDRef are references to Subnet used to set the SubnetID.
+                    properties:
+                      name:
+                        description: Name of the referenced object.
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  subnetIDSelector:
+                    description: SubnetIDSelector selects references to Subnet used to set the SubnetID.
+                    properties:
+                      matchControllerRef:
+                        description: MatchControllerRef ensures an object with the same controller reference as the selecting object is selected.
+                        type: boolean
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: MatchLabels ensures an object with matching labels is selected.
+                        type: object
+                    type: object
                 required:
-                - fileSystemID
                 - region
-                - subnetID
                 type: object
               providerConfigRef:
                 default:
@@ -148,6 +188,9 @@ spec:
                   availabilityZoneName:
                     description: The name of the Availability Zone (AZ) that the mount target resides in. AZs are independently mapped to names for each AWS account. For example, the Availability Zone us-east-1a for your AWS account might not be the same location as us-east-1a for another AWS account.
                     type: string
+                  fileSystemID:
+                    description: The ID of the file system for which the mount target is intended.
+                    type: string
                   lifeCycleState:
                     description: Lifecycle state of the mount target.
                     type: string
@@ -159,6 +202,9 @@ spec:
                     type: string
                   ownerID:
                     description: AWS account ID that owns the resource.
+                    type: string
+                  subnetID:
+                    description: The ID of the mount target's subnet.
                     type: string
                   vpcID:
                     description: The Virtual Private Cloud (VPC) ID that the mount target is configured in.

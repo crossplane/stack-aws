@@ -29,14 +29,8 @@ type MountTargetParameters struct {
 	// Region is which region the MountTarget will be created.
 	// +kubebuilder:validation:Required
 	Region string `json:"region"`
-	// The ID of the file system for which to create the mount target.
-	// +kubebuilder:validation:Required
-	FileSystemID *string `json:"fileSystemID"`
 	// Valid IPv4 address within the address range of the specified subnet.
-	IPAddress *string `json:"ipAddress,omitempty"`
-	// The ID of the subnet to add the mount target in.
-	// +kubebuilder:validation:Required
-	SubnetID                    *string `json:"subnetID"`
+	IPAddress                   *string `json:"ipAddress,omitempty"`
 	CustomMountTargetParameters `json:",inline"`
 }
 
@@ -57,6 +51,8 @@ type MountTargetObservation struct {
 	// the Availability Zone us-east-1a for your AWS account might not be the same
 	// location as us-east-1a for another AWS account.
 	AvailabilityZoneName *string `json:"availabilityZoneName,omitempty"`
+	// The ID of the file system for which the mount target is intended.
+	FileSystemID *string `json:"fileSystemID,omitempty"`
 	// Lifecycle state of the mount target.
 	LifeCycleState *string `json:"lifeCycleState,omitempty"`
 	// System-assigned mount target ID.
@@ -66,6 +62,8 @@ type MountTargetObservation struct {
 	NetworkInterfaceID *string `json:"networkInterfaceID,omitempty"`
 	// AWS account ID that owns the resource.
 	OwnerID *string `json:"ownerID,omitempty"`
+	// The ID of the mount target's subnet.
+	SubnetID *string `json:"subnetID,omitempty"`
 	// The Virtual Private Cloud (VPC) ID that the mount target is configured in.
 	VPCID *string `json:"vpcID,omitempty"`
 }
