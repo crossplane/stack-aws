@@ -176,6 +176,7 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter, poll ti
 		distribution.SetupDistribution,
 		resolverendpoint.SetupResolverEndpoint,
 		resolverrule.SetupResolverRule,
+		broker.SetupBroker,
 		kafkacluster.SetupCluster,
 		broker.SetupBroker,
 	} {
