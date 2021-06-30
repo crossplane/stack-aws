@@ -1,0 +1,27 @@
+apiVersion: transfer.aws.crossplane.io/v1alpha1
+kind: Server
+metadata:
+# provider-aws directly adds external-name annotation to name - then we running in issues in Observer
+# at the moment we need a name with following regex:
+# ^s-([0-9a-f]{17})$
+  name: s-11111111111111111
+spec:
+  forProvider:
+    domain: S3
+    endpointDetails:
+      securityGroupIDs:
+        - sg-7f714d0e
+      subnetIDs:
+        - subnet-f2ccb898
+      vpcID: vpc-aab73bc0
+    endpointType: VPC
+    identityProviderType: SERVICE_MANAGED
+    securityPolicyName: TransferSecurityPolicy-2020-06
+    protocols:
+      - SFTP
+    region: us-east-1
+    tags:
+      - key: myKey
+        value: myValue
+  providerConfigRef:
+    name: example

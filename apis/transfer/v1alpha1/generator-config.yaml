@@ -1,0 +1,11 @@
+resources:
+  Server:
+    exceptions:
+      errors:
+        404:
+          code: ResourceNotFoundException
+  User:
+    exceptions:
+      errors:
+        404:
+          code: ResourceNotFoundException    
