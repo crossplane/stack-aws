@@ -62,7 +62,9 @@ func SetupServer(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter, p
 }
 
 func preObserve(_ context.Context, cr *svcapitypes.Server, obj *svcsdk.DescribeServerInput) error {
-	obj.ServerId = awsclients.String(meta.GetExternalName(cr))
+	if cr.Name != *awsclients.String(meta.GetExternalName(cr)) {
+		obj.ServerId = awsclients.String(meta.GetExternalName(cr))
+	}
 	return nil
 }
 

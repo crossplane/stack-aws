@@ -1,10 +1,7 @@
 apiVersion: transfer.aws.crossplane.io/v1alpha1
 kind: Server
 metadata:
-# provider-aws directly adds external-name annotation to name - then we running in issues in Observer
-# at the moment we need a name with following regex:
-# ^s-([0-9a-f]{17})$
-  name: s-11111111111111111
+  name: example
 spec:
   forProvider:
     domain: S3
