@@ -114,6 +114,17 @@ func (e *external) Create(ctx context.Context, mg cpresource.Managed) (managed.E
 		return managed.ExternalCreation{}, awsclient.Wrap(err, errCreate)
 	}
 
+	if resp.ServerId != nil {
+		cr.Status.AtProvider.ServerID = resp.ServerId
+	} else {
+		cr.Status.AtProvider.ServerID = nil
+	}
+	if resp.UserName != nil {
+		cr.Status.AtProvider.UserName = resp.UserName
+	} else {
+		cr.Status.AtProvider.UserName = nil
+	}
+
 	return e.postCreate(ctx, cr, resp, managed.ExternalCreation{}, err)
 }
 

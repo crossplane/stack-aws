@@ -93,9 +93,51 @@ spec:
                   role:
                     description: The IAM role that controls your users' access to your Amazon S3 bucket. The policies attached to this role will determine the level of access you want to provide your users when transferring files into and out of your Amazon S3 bucket or buckets. The IAM role should also contain a trust relationship that allows the server to access your resources when servicing your users' transfer requests.
                     type: string
+                  roleRef:
+                    description: RoleRef is a reference to a IAM role.
+                    properties:
+                      name:
+                        description: Name of the referenced object.
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  roleSelector:
+                    description: RoleSelector selects references to a IAM role.
+                    properties:
+                      matchControllerRef:
+                        description: MatchControllerRef ensures an object with the same controller reference as the selecting object is selected.
+                        type: boolean
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: MatchLabels ensures an object with matching labels is selected.
+                        type: object
+                    type: object
                   serverID:
                     description: A system-assigned unique identifier for a server instance. This is the specific server that you added your user to.
                     type: string
+                  serverIDRef:
+                    description: ServerIDRef is a reference to an server instance.
+                    properties:
+                      name:
+                        description: Name of the referenced object.
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  serverIDSelector:
+                    description: ServerIDSelector selects references to an server instance.
+                    properties:
+                      matchControllerRef:
+                        description: MatchControllerRef ensures an object with the same controller reference as the selecting object is selected.
+                        type: boolean
+                      matchLabels:
+                        additionalProperties:
+                          type: string
+                        description: MatchLabels ensures an object with matching labels is selected.
+                        type: object
+                    type: object
                   sshPublicKeyBody:
                     description: The public portion of the Secure Shell (SSH) key used to authenticate the user to the server.
                     type: string
@@ -109,14 +151,8 @@ spec:
                           type: string
                       type: object
                     type: array
-                  userName:
-                    description: 'A unique string that identifies a user and is associated with a as specified by the ServerId. This user name must be a minimum of 3 and a maximum of 100 characters long. The following are valid characters: a-z, A-Z, 0-9, underscore ''_'', hyphen ''-'', period ''.'', and at sign ''@''. The user name can''t start with a hyphen, period, or at sign.'
-                    type: string
                 required:
                 - region
-                - role
-                - serverID
-                - userName
                 type: object
               providerConfigRef:
                 default:
@@ -159,6 +195,13 @@ spec:
             properties:
               atProvider:
                 description: UserObservation defines the observed state of User
+                properties:
+                  serverID:
+                    description: The ID of the server that the user is attached to.
+                    type: string
+                  userName:
+                    description: A unique string that identifies a user account associated with a server.
+                    type: string
                 type: object
               conditions:
                 description: Conditions of the resource.

@@ -33,11 +33,11 @@ import (
 func GenerateDescribeUserInput(cr *svcapitypes.User) *svcsdk.DescribeUserInput {
 	res := &svcsdk.DescribeUserInput{}
 
-	if cr.Spec.ForProvider.ServerID != nil {
-		res.SetServerId(*cr.Spec.ForProvider.ServerID)
+	if cr.Status.AtProvider.ServerID != nil {
+		res.SetServerId(*cr.Status.AtProvider.ServerID)
 	}
-	if cr.Spec.ForProvider.UserName != nil {
-		res.SetUserName(*cr.Spec.ForProvider.UserName)
+	if cr.Status.AtProvider.UserName != nil {
+		res.SetUserName(*cr.Status.AtProvider.UserName)
 	}
 
 	return res
@@ -46,6 +46,12 @@ func GenerateDescribeUserInput(cr *svcapitypes.User) *svcsdk.DescribeUserInput {
 // GenerateUser returns the current state in the form of *svcapitypes.User.
 func GenerateUser(resp *svcsdk.DescribeUserOutput) *svcapitypes.User {
 	cr := &svcapitypes.User{}
+
+	if resp.ServerId != nil {
+		cr.Status.AtProvider.ServerID = resp.ServerId
+	} else {
+		cr.Status.AtProvider.ServerID = nil
+	}
 
 	return cr
 }
@@ -96,31 +102,22 @@ func GenerateCreateUserInput(cr *svcapitypes.User) *svcsdk.CreateUserInput {
 		}
 		res.SetPosixProfile(f4)
 	}
-	if cr.Spec.ForProvider.Role != nil {
-		res.SetRole(*cr.Spec.ForProvider.Role)
-	}
-	if cr.Spec.ForProvider.ServerID != nil {
-		res.SetServerId(*cr.Spec.ForProvider.ServerID)
-	}
 	if cr.Spec.ForProvider.SshPublicKeyBody != nil {
 		res.SetSshPublicKeyBody(*cr.Spec.ForProvider.SshPublicKeyBody)
 	}
 	if cr.Spec.ForProvider.Tags != nil {
-		f8 := []*svcsdk.Tag{}
-		for _, f8iter := range cr.Spec.ForProvider.Tags {
-			f8elem := &svcsdk.Tag{}
-			if f8iter.Key != nil {
-				f8elem.SetKey(*f8iter.Key)
+		f6 := []*svcsdk.Tag{}
+		for _, f6iter := range cr.Spec.ForProvider.Tags {
+			f6elem := &svcsdk.Tag{}
+			if f6iter.Key != nil {
+				f6elem.SetKey(*f6iter.Key)
 			}
-			if f8iter.Value != nil {
-				f8elem.SetValue(*f8iter.Value)
+			if f6iter.Value != nil {
+				f6elem.SetValue(*f6iter.Value)
 			}
-			f8 = append(f8, f8elem)
+			f6 = append(f6, f6elem)
 		}
-		res.SetTags(f8)
-	}
-	if cr.Spec.ForProvider.UserName != nil {
-		res.SetUserName(*cr.Spec.ForProvider.UserName)
+		res.SetTags(f6)
 	}
 
 	return res
@@ -172,14 +169,11 @@ func GenerateUpdateUserInput(cr *svcapitypes.User) *svcsdk.UpdateUserInput {
 		}
 		res.SetPosixProfile(f4)
 	}
-	if cr.Spec.ForProvider.Role != nil {
-		res.SetRole(*cr.Spec.ForProvider.Role)
+	if cr.Status.AtProvider.ServerID != nil {
+		res.SetServerId(*cr.Status.AtProvider.ServerID)
 	}
-	if cr.Spec.ForProvider.ServerID != nil {
-		res.SetServerId(*cr.Spec.ForProvider.ServerID)
-	}
-	if cr.Spec.ForProvider.UserName != nil {
-		res.SetUserName(*cr.Spec.ForProvider.UserName)
+	if cr.Status.AtProvider.UserName != nil {
+		res.SetUserName(*cr.Status.AtProvider.UserName)
 	}
 
 	return res
@@ -189,11 +183,11 @@ func GenerateUpdateUserInput(cr *svcapitypes.User) *svcsdk.UpdateUserInput {
 func GenerateDeleteUserInput(cr *svcapitypes.User) *svcsdk.DeleteUserInput {
 	res := &svcsdk.DeleteUserInput{}
 
-	if cr.Spec.ForProvider.ServerID != nil {
-		res.SetServerId(*cr.Spec.ForProvider.ServerID)
+	if cr.Status.AtProvider.ServerID != nil {
+		res.SetServerId(*cr.Status.AtProvider.ServerID)
 	}
-	if cr.Spec.ForProvider.UserName != nil {
-		res.SetUserName(*cr.Spec.ForProvider.UserName)
+	if cr.Status.AtProvider.UserName != nil {
+		res.SetUserName(*cr.Status.AtProvider.UserName)
 	}
 
 	return res

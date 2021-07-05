@@ -63,43 +63,6 @@ func GenerateCreateServerInput(cr *svcapitypes.Server) *svcsdk.CreateServerInput
 	if cr.Spec.ForProvider.Domain != nil {
 		res.SetDomain(*cr.Spec.ForProvider.Domain)
 	}
-	if cr.Spec.ForProvider.EndpointDetails != nil {
-		f2 := &svcsdk.EndpointDetails{}
-		if cr.Spec.ForProvider.EndpointDetails.AddressAllocationIDs != nil {
-			f2f0 := []*string{}
-			for _, f2f0iter := range cr.Spec.ForProvider.EndpointDetails.AddressAllocationIDs {
-				var f2f0elem string
-				f2f0elem = *f2f0iter
-				f2f0 = append(f2f0, &f2f0elem)
-			}
-			f2.SetAddressAllocationIds(f2f0)
-		}
-		if cr.Spec.ForProvider.EndpointDetails.SecurityGroupIDs != nil {
-			f2f1 := []*string{}
-			for _, f2f1iter := range cr.Spec.ForProvider.EndpointDetails.SecurityGroupIDs {
-				var f2f1elem string
-				f2f1elem = *f2f1iter
-				f2f1 = append(f2f1, &f2f1elem)
-			}
-			f2.SetSecurityGroupIds(f2f1)
-		}
-		if cr.Spec.ForProvider.EndpointDetails.SubnetIDs != nil {
-			f2f2 := []*string{}
-			for _, f2f2iter := range cr.Spec.ForProvider.EndpointDetails.SubnetIDs {
-				var f2f2elem string
-				f2f2elem = *f2f2iter
-				f2f2 = append(f2f2, &f2f2elem)
-			}
-			f2.SetSubnetIds(f2f2)
-		}
-		if cr.Spec.ForProvider.EndpointDetails.VPCEndpointID != nil {
-			f2.SetVpcEndpointId(*cr.Spec.ForProvider.EndpointDetails.VPCEndpointID)
-		}
-		if cr.Spec.ForProvider.EndpointDetails.VPCID != nil {
-			f2.SetVpcId(*cr.Spec.ForProvider.EndpointDetails.VPCID)
-		}
-		res.SetEndpointDetails(f2)
-	}
 	if cr.Spec.ForProvider.EndpointType != nil {
 		res.SetEndpointType(*cr.Spec.ForProvider.EndpointType)
 	}
@@ -107,14 +70,14 @@ func GenerateCreateServerInput(cr *svcapitypes.Server) *svcsdk.CreateServerInput
 		res.SetHostKey(*cr.Spec.ForProvider.HostKey)
 	}
 	if cr.Spec.ForProvider.IDentityProviderDetails != nil {
-		f5 := &svcsdk.IdentityProviderDetails{}
+		f4 := &svcsdk.IdentityProviderDetails{}
 		if cr.Spec.ForProvider.IDentityProviderDetails.InvocationRole != nil {
-			f5.SetInvocationRole(*cr.Spec.ForProvider.IDentityProviderDetails.InvocationRole)
+			f4.SetInvocationRole(*cr.Spec.ForProvider.IDentityProviderDetails.InvocationRole)
 		}
 		if cr.Spec.ForProvider.IDentityProviderDetails.URL != nil {
-			f5.SetUrl(*cr.Spec.ForProvider.IDentityProviderDetails.URL)
+			f4.SetUrl(*cr.Spec.ForProvider.IDentityProviderDetails.URL)
 		}
-		res.SetIdentityProviderDetails(f5)
+		res.SetIdentityProviderDetails(f4)
 	}
 	if cr.Spec.ForProvider.IDentityProviderType != nil {
 		res.SetIdentityProviderType(*cr.Spec.ForProvider.IDentityProviderType)
@@ -123,30 +86,30 @@ func GenerateCreateServerInput(cr *svcapitypes.Server) *svcsdk.CreateServerInput
 		res.SetLoggingRole(*cr.Spec.ForProvider.LoggingRole)
 	}
 	if cr.Spec.ForProvider.Protocols != nil {
-		f8 := []*string{}
-		for _, f8iter := range cr.Spec.ForProvider.Protocols {
-			var f8elem string
-			f8elem = *f8iter
-			f8 = append(f8, &f8elem)
+		f7 := []*string{}
+		for _, f7iter := range cr.Spec.ForProvider.Protocols {
+			var f7elem string
+			f7elem = *f7iter
+			f7 = append(f7, &f7elem)
 		}
-		res.SetProtocols(f8)
+		res.SetProtocols(f7)
 	}
 	if cr.Spec.ForProvider.SecurityPolicyName != nil {
 		res.SetSecurityPolicyName(*cr.Spec.ForProvider.SecurityPolicyName)
 	}
 	if cr.Spec.ForProvider.Tags != nil {
-		f10 := []*svcsdk.Tag{}
-		for _, f10iter := range cr.Spec.ForProvider.Tags {
-			f10elem := &svcsdk.Tag{}
-			if f10iter.Key != nil {
-				f10elem.SetKey(*f10iter.Key)
+		f9 := []*svcsdk.Tag{}
+		for _, f9iter := range cr.Spec.ForProvider.Tags {
+			f9elem := &svcsdk.Tag{}
+			if f9iter.Key != nil {
+				f9elem.SetKey(*f9iter.Key)
 			}
-			if f10iter.Value != nil {
-				f10elem.SetValue(*f10iter.Value)
+			if f9iter.Value != nil {
+				f9elem.SetValue(*f9iter.Value)
 			}
-			f10 = append(f10, f10elem)
+			f9 = append(f9, f9elem)
 		}
-		res.SetTags(f10)
+		res.SetTags(f9)
 	}
 
 	return res
@@ -158,43 +121,6 @@ func GenerateUpdateServerInput(cr *svcapitypes.Server) *svcsdk.UpdateServerInput
 
 	if cr.Spec.ForProvider.Certificate != nil {
 		res.SetCertificate(*cr.Spec.ForProvider.Certificate)
-	}
-	if cr.Spec.ForProvider.EndpointDetails != nil {
-		f1 := &svcsdk.EndpointDetails{}
-		if cr.Spec.ForProvider.EndpointDetails.AddressAllocationIDs != nil {
-			f1f0 := []*string{}
-			for _, f1f0iter := range cr.Spec.ForProvider.EndpointDetails.AddressAllocationIDs {
-				var f1f0elem string
-				f1f0elem = *f1f0iter
-				f1f0 = append(f1f0, &f1f0elem)
-			}
-			f1.SetAddressAllocationIds(f1f0)
-		}
-		if cr.Spec.ForProvider.EndpointDetails.SecurityGroupIDs != nil {
-			f1f1 := []*string{}
-			for _, f1f1iter := range cr.Spec.ForProvider.EndpointDetails.SecurityGroupIDs {
-				var f1f1elem string
-				f1f1elem = *f1f1iter
-				f1f1 = append(f1f1, &f1f1elem)
-			}
-			f1.SetSecurityGroupIds(f1f1)
-		}
-		if cr.Spec.ForProvider.EndpointDetails.SubnetIDs != nil {
-			f1f2 := []*string{}
-			for _, f1f2iter := range cr.Spec.ForProvider.EndpointDetails.SubnetIDs {
-				var f1f2elem string
-				f1f2elem = *f1f2iter
-				f1f2 = append(f1f2, &f1f2elem)
-			}
-			f1.SetSubnetIds(f1f2)
-		}
-		if cr.Spec.ForProvider.EndpointDetails.VPCEndpointID != nil {
-			f1.SetVpcEndpointId(*cr.Spec.ForProvider.EndpointDetails.VPCEndpointID)
-		}
-		if cr.Spec.ForProvider.EndpointDetails.VPCID != nil {
-			f1.SetVpcId(*cr.Spec.ForProvider.EndpointDetails.VPCID)
-		}
-		res.SetEndpointDetails(f1)
 	}
 	if cr.Spec.ForProvider.EndpointType != nil {
 		res.SetEndpointType(*cr.Spec.ForProvider.EndpointType)

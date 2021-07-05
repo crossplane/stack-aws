@@ -4,12 +4,13 @@ metadata:
   name: example
 spec:
   forProvider:
-    userName: example
-    homeDirectory: /<s3-bucket>/example
-    homeDirectoryType: PATH
     region: us-east-1
-    role: arn:aws:iam::<aws-account-id>:role/aws-glue
-    serverID: <server-id>
+    homeDirectory: /crossplane-example-bucket/example
+    homeDirectoryType: PATH
+    roleRef:
+      name: somerole
+    serverIDRef:
+      name: example
     sshPublicKeyBody: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC7qmegDxzv1omqG2cWM+i+qaEGzCoSBwqCeXyGUU93sTqtNYYHJVGj6YZqXeXEGzJtKm2A/uo59Y+WmqhJgW7HcT2Hqvo80NfbIRhqE9TJETyBe
   GiiC8qpiYgPC2zigCNvTsRXh0CH5FJ1qy4QEBjztQDWOqSrsoOSJEEWCJiKJizTiXDmlGdiKE409GBo8lvlbMRWbrMj3iX825WTqy/T0Pio1kqANDotLnPA0sRXUPVyzc/ghzqRHzFetzP9j7C0nh
   EvjiJphiuYvhbgix79FrCQG0lXBGcAWzsWUeAoT/d3kQu79+UTWxm+z4pnJ7gkKVMejqrWys560SdAqD264dc5UBRGI9j6XxVKdraSaEitDneONrSAt2tE/RwRxh2ASxqQfdF88zyDI8/ma608tHc

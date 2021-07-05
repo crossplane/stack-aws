@@ -79,31 +79,12 @@ type UserParameters struct {
 	Policy *string `json:"policy,omitempty"`
 
 	PosixProfile *PosixProfile `json:"posixProfile,omitempty"`
-	// The IAM role that controls your users' access to your Amazon S3 bucket. The
-	// policies attached to this role will determine the level of access you want
-	// to provide your users when transferring files into and out of your Amazon
-	// S3 bucket or buckets. The IAM role should also contain a trust relationship
-	// that allows the server to access your resources when servicing your users'
-	// transfer requests.
-	// +kubebuilder:validation:Required
-	Role *string `json:"role"`
-	// A system-assigned unique identifier for a server instance. This is the specific
-	// server that you added your user to.
-	// +kubebuilder:validation:Required
-	ServerID *string `json:"serverID"`
 	// The public portion of the Secure Shell (SSH) key used to authenticate the
 	// user to the server.
 	SshPublicKeyBody *string `json:"sshPublicKeyBody,omitempty"`
 	// Key-value pairs that can be used to group and search for users. Tags are
 	// metadata attached to users for any purpose.
-	Tags []*Tag `json:"tags,omitempty"`
-	// A unique string that identifies a user and is associated with a as specified
-	// by the ServerId. This user name must be a minimum of 3 and a maximum of 100
-	// characters long. The following are valid characters: a-z, A-Z, 0-9, underscore
-	// '_', hyphen '-', period '.', and at sign '@'. The user name can't start with
-	// a hyphen, period, or at sign.
-	// +kubebuilder:validation:Required
-	UserName             *string `json:"userName"`
+	Tags                 []*Tag `json:"tags,omitempty"`
 	CustomUserParameters `json:",inline"`
 }
 
@@ -115,6 +96,10 @@ type UserSpec struct {
 
 // UserObservation defines the observed state of User
 type UserObservation struct {
+	// The ID of the server that the user is attached to.
+	ServerID *string `json:"serverID,omitempty"`
+	// A unique string that identifies a user account associated with a server.
+	UserName *string `json:"userName,omitempty"`
 }
 
 // UserStatus defines the observed state of User.

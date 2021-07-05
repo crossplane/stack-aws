@@ -61,12 +61,6 @@ type ServerParameters struct {
 	Certificate *string `json:"certificate,omitempty"`
 
 	Domain *string `json:"domain,omitempty"`
-	// The virtual private cloud (VPC) endpoint settings that are configured for
-	// your server. When you host your endpoint within your VPC, you can make it
-	// accessible only to resources within your VPC, or you can attach Elastic IPs
-	// and make it accessible to clients over the internet. Your VPC's default security
-	// groups are automatically assigned to your endpoint.
-	EndpointDetails *EndpointDetails `json:"endpointDetails,omitempty"`
 	// The type of VPC endpoint that you want your server to connect to. You can
 	// choose to connect to the public internet or a VPC endpoint. With a VPC endpoint,
 	// you can restrict access to your server and resources only within your VPC.

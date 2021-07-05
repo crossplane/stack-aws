@@ -44,6 +44,7 @@ func SetupServer(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter, p
 			e.postCreate = postCreate
 			e.preObserve = preObserve
 			e.preDelete = preDelete
+			e.preCreate = preCreate
 		},
 	}
 	return ctrl.NewControllerManagedBy(mgr).
@@ -106,4 +107,15 @@ func postCreate(_ context.Context, cr *svcapitypes.Server, obj *svcsdk.CreateSer
 	}
 	meta.SetExternalName(cr, awsclients.StringValue(obj.ServerId))
 	return managed.ExternalCreation{ExternalNameAssigned: true}, nil
+}
+
+func preCreate(_ context.Context, cr *svcapitypes.Server, obj *svcsdk.CreateServerInput) error {
+	obj.EndpointDetails = &svcsdk.EndpointDetails{
+		AddressAllocationIds: cr.Spec.ForProvider.CustomEndpointDetails.AddressAllocationIDs,
+		SecurityGroupIds:     cr.Spec.ForProvider.CustomEndpointDetails.SecurityGroupIDs,
+		SubnetIds:            cr.Spec.ForProvider.CustomEndpointDetails.SubnetIDs,
+		VpcEndpointId:        cr.Spec.ForProvider.CustomEndpointDetails.VPCEndpointID,
+		VpcId:                cr.Spec.ForProvider.CustomEndpointDetails.VPCID,
+	}
+	return nil
 }

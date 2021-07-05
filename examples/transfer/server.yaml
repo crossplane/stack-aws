@@ -4,21 +4,25 @@ metadata:
   name: example
 spec:
   forProvider:
+    region: us-east-1
     domain: S3
     endpointDetails:
-      securityGroupIDs:
-        - sg-7f714d0e
-      subnetIDs:
-        - subnet-f2ccb898
-      vpcID: vpc-aab73bc0
+      securityGroupIDRefs:
+        - name: example
+      subnetIDRefs:
+        - name: sample-subnet1
+      vpcIDRef: 
+        name: sample-vpc
     endpointType: VPC
     identityProviderType: SERVICE_MANAGED
     securityPolicyName: TransferSecurityPolicy-2020-06
     protocols:
       - SFTP
-    region: us-east-1
     tags:
       - key: myKey
         value: myValue
+  writeConnectionSecretToRef:
+    name: example-conn
+    namespace: default
   providerConfigRef:
     name: example

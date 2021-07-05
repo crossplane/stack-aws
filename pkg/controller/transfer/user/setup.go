@@ -44,6 +44,7 @@ func SetupUser(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter, pol
 			e.postCreate = postCreate
 			e.preObserve = preObserve
 			e.preDelete = preDelete
+			e.preCreate = preCreate
 		},
 	}
 	return ctrl.NewControllerManagedBy(mgr).
@@ -89,4 +90,11 @@ func postCreate(_ context.Context, cr *svcapitypes.User, obj *svcsdk.CreateUserO
 	}
 	meta.SetExternalName(cr, awsclients.StringValue(obj.UserName))
 	return managed.ExternalCreation{ExternalNameAssigned: true}, nil
+}
+
+func preCreate(_ context.Context, cr *svcapitypes.User, obj *svcsdk.CreateUserInput) error {
+	obj.ServerId = cr.Spec.ForProvider.ServerID
+	obj.Role = cr.Spec.ForProvider.Role
+	obj.UserName = &cr.Name
+	return nil
 }
