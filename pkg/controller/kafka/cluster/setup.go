@@ -44,6 +44,7 @@ func SetupCluster(mgr ctrl.Manager, l logging.Logger, limiter workqueue.RateLimi
 			e.postObserve = postObserve
 			e.preDelete = preDelete
 			e.postDelete = postDelete
+			e.preCreate = preCreate
 			e.postCreate = postCreate
 			e.lateInitialize = LateInitialize
 		},
@@ -112,6 +113,25 @@ func postObserve(_ context.Context, cr *svcapitypes.Cluster, obj *svcsdk.Describ
 	return obs, nil
 }
 
+func preCreate(_ context.Context, cr *svcapitypes.Cluster, obj *svcsdk.CreateClusterInput) error {
+	obj.ClusterName = &cr.Name
+	obj.BrokerNodeGroupInfo = &svcsdk.BrokerNodeGroupInfo{
+		ClientSubnets:  cr.Spec.ForProvider.CustomBrokerNodeGroupInfo.ClientSubnets,
+		InstanceType:   cr.Spec.ForProvider.CustomBrokerNodeGroupInfo.InstanceType,
+		SecurityGroups: cr.Spec.ForProvider.CustomBrokerNodeGroupInfo.SecurityGroups,
+		StorageInfo: &svcsdk.StorageInfo{
+			EbsStorageInfo: &svcsdk.EBSStorageInfo{
+				VolumeSize: cr.Spec.ForProvider.CustomBrokerNodeGroupInfo.StorageInfo.EBSStorageInfo.VolumeSize,
+			},
+		},
+	}
+	obj.ConfigurationInfo = &svcsdk.ConfigurationInfo{
+		Arn:      cr.Spec.ForProvider.CustomConfigurationInfo.ARN,
+		Revision: cr.Spec.ForProvider.CustomConfigurationInfo.Revision,
+	}
+	return nil
+}
+
 func postCreate(_ context.Context, cr *svcapitypes.Cluster, obj *svcsdk.CreateClusterOutput, _ managed.ExternalCreation, err error) (managed.ExternalCreation, error) {
 	if err != nil {
 		return managed.ExternalCreation{}, err
@@ -129,10 +149,6 @@ func LateInitialize(cr *svcapitypes.ClusterParameters, obj *svcsdk.DescribeClust
 		cr.EnhancedMonitoring = awsclients.LateInitializeStringPtr(cr.EnhancedMonitoring, obj.ClusterInfo.EnhancedMonitoring)
 	}
 
-	if cr.BrokerNodeGroupInfo.BrokerAZDistribution == nil && obj.ClusterInfo.BrokerNodeGroupInfo.BrokerAZDistribution != nil {
-		cr.BrokerNodeGroupInfo.BrokerAZDistribution = awsclients.LateInitializeStringPtr(cr.BrokerNodeGroupInfo.BrokerAZDistribution, obj.ClusterInfo.BrokerNodeGroupInfo.BrokerAZDistribution)
-	}
-
 	if cr.CustomClusterParameters.ZookeeperConnectString == nil && obj.ClusterInfo.ZookeeperConnectString != nil {
 		cr.CustomClusterParameters.ZookeeperConnectString = awsclients.LateInitializeStringPtr(cr.CustomClusterParameters.ZookeeperConnectString, obj.ClusterInfo.ZookeeperConnectString)
 	}
@@ -141,8 +157,8 @@ func LateInitialize(cr *svcapitypes.ClusterParameters, obj *svcsdk.DescribeClust
 		cr.CustomClusterParameters.ZookeeperConnectStringTLS = awsclients.LateInitializeStringPtr(cr.CustomClusterParameters.ZookeeperConnectStringTLS, obj.ClusterInfo.ZookeeperConnectStringTls)
 	}
 
-	if cr.BrokerNodeGroupInfo.SecurityGroups == nil && obj.ClusterInfo.BrokerNodeGroupInfo.SecurityGroups != nil {
-		cr.BrokerNodeGroupInfo.SecurityGroups = obj.ClusterInfo.BrokerNodeGroupInfo.SecurityGroups
+	if cr.CustomBrokerNodeGroupInfo.SecurityGroups == nil && obj.ClusterInfo.BrokerNodeGroupInfo.SecurityGroups != nil {
+		cr.CustomBrokerNodeGroupInfo.SecurityGroups = obj.ClusterInfo.BrokerNodeGroupInfo.SecurityGroups
 	}
 
 	if cr.EncryptionInfo == nil && obj.ClusterInfo.EncryptionInfo != nil {
