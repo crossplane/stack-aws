@@ -78,6 +78,7 @@ import (
 	kafkacluster "github.com/crossplane/provider-aws/pkg/controller/kafka/cluster"
 	"github.com/crossplane/provider-aws/pkg/controller/kms/key"
 	"github.com/crossplane/provider-aws/pkg/controller/lambda/function"
+	"github.com/crossplane/provider-aws/pkg/controller/mq/broker"
 	"github.com/crossplane/provider-aws/pkg/controller/notification/snssubscription"
 	"github.com/crossplane/provider-aws/pkg/controller/notification/snstopic"
 	"github.com/crossplane/provider-aws/pkg/controller/rds/dbcluster"
@@ -175,6 +176,7 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter, poll ti
 		resolverendpoint.SetupResolverEndpoint,
 		resolverrule.SetupResolverRule,
 		kafkacluster.SetupCluster,
+		broker.SetupBroker,
 	} {
 		if err := setup(mgr, l, rl, poll); err != nil {
 			return err
