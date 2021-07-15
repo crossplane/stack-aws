@@ -1,0 +1,13 @@
+apiVersion: athena.aws.crossplane.io/v1alpha1
+kind: WorkGroup
+metadata:
+  name: example
+spec:
+  forProvider:
+    description: example
+    region: us-east-1
+    tags:
+      - key: key
+        value: value
+  providerConfigRef:
+    name: example
