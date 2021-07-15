@@ -2,6 +2,8 @@ ignore:
   resource_names:
     - DataCatalog
     - NamedQuery
+  field_paths:
+    - CreateWorkGroupInput.Name
 resources:
   WorkGroup:
     exceptions:

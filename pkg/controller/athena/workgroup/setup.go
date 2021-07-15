@@ -15,6 +15,7 @@ package workgroup
 
 import (
 	"context"
+	"time"
 
 	xpv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	"k8s.io/client-go/util/workqueue"
@@ -34,14 +35,14 @@ import (
 )
 
 // SetupWorkGroup adds a controller that reconciles WorkGroup.
-func SetupWorkGroup(mgr ctrl.Manager, l logging.Logger, limiter workqueue.RateLimiter) error {
+func SetupWorkGroup(mgr ctrl.Manager, l logging.Logger, limiter workqueue.RateLimiter, poll time.Duration) error {
 	name := managed.ControllerName(svcapitypes.WorkGroupGroupKind)
 	opts := []option{
 		func(e *external) {
 			e.preObserve = preObserve
 			e.postObserve = postObserve
 			e.preDelete = preDelete
-			e.postCreate = postCreate
+			e.preCreate = preCreate
 			e.lateInitialize = LateInitialize
 		},
 	}
@@ -53,7 +54,6 @@ func SetupWorkGroup(mgr ctrl.Manager, l logging.Logger, limiter workqueue.RateLi
 		For(&svcapitypes.WorkGroup{}).
 		Complete(managed.NewReconciler(mgr,
 			resource.ManagedKind(svcapitypes.WorkGroupGroupVersionKind),
-			managed.WithInitializers(managed.NewDefaultProviderConfig(mgr.GetClient())),
 			managed.WithExternalConnecter(&connector{kube: mgr.GetClient(), opts: opts}),
 			managed.WithLogger(l.WithValues("controller", name)),
 			managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name)))))
@@ -84,13 +84,9 @@ func postObserve(_ context.Context, cr *svcapitypes.WorkGroup, obj *svcsdk.GetWo
 	return obs, nil
 }
 
-func postCreate(_ context.Context, cr *svcapitypes.WorkGroup, obj *svcsdk.CreateWorkGroupOutput, _ managed.ExternalCreation, err error) (managed.ExternalCreation, error) {
-	if err != nil {
-		return managed.ExternalCreation{}, err
-	}
-	// CreateWorkGroupOutput is empty
-	meta.SetExternalName(cr, cr.Name)
-	return managed.ExternalCreation{ExternalNameAssigned: false}, nil
+func preCreate(_ context.Context, cr *svcapitypes.WorkGroup, obj *svcsdk.CreateWorkGroupInput) error {
+	obj.Name = awsclients.String(meta.GetExternalName(cr))
+	return nil
 }
 
 // LateInitialize fills the empty fields in *svcapitypes.WorkGroupParameters with

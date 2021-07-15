@@ -5,10 +5,9 @@ metadata:
 spec:
   forProvider:
     description: example
-    name: example
     region: us-east-1
     tags:
       - key: key
         value: value
   providerConfigRef:
-    name: default
+    name: example

@@ -39,9 +39,6 @@ type WorkGroupParameters struct {
 	Configuration *WorkGroupConfiguration `json:"configuration,omitempty"`
 	// The workgroup description.
 	Description *string `json:"description,omitempty"`
-	// The workgroup name.
-	// +kubebuilder:validation:Required
-	Name *string `json:"name"`
 	// A list of comma separated tags to add to the workgroup that is created.
 	Tags                      []*Tag `json:"tags,omitempty"`
 	CustomWorkGroupParameters `json:",inline"`

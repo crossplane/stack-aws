@@ -92,9 +92,6 @@ spec:
                   description:
                     description: The workgroup description.
                     type: string
-                  name:
-                    description: The workgroup name.
-                    type: string
                   region:
                     description: Region is which region the WorkGroup will be created.
                     type: string
@@ -109,7 +106,6 @@ spec:
                       type: object
                     type: array
                 required:
-                - name
                 - region
                 type: object
               providerConfigRef:
