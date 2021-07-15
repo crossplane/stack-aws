@@ -195,6 +195,30 @@ spec:
                   finalDBSnapshotIdentifier:
                     description: 'The DBSnapshotIdentifier of the new DBSnapshot created when SkipFinalSnapshot is set to false. Specifying this parameter and also setting the SkipFinalShapshot parameter to true results in an error. Constraints:    * Must be 1 to 255 letters or numbers.    * First character must be a letter    * Cannot end with a hyphen or contain two consecutive hyphens    * Cannot be specified when deleting a Read Replica.'
                     type: string
+                  fromBackup:
+                    description: FromBackup specifies the details of the backup to restore when creating a new RDS instance.
+                    properties:
+                      s3BucketName:
+                        description: S3BucketName is the name of the S3 bucket containing the backup to restore.
+                        type: string
+                      s3IngestionRoleArn:
+                        description: S3IngestionRoleArn is the IAM role that will allow RDS to access the contents of the S3 bucket.
+                        type: string
+                      s3Prefix:
+                        description: S3Prefix is the prefix of the S3 bucket within which the backup to restore is located.
+                        type: string
+                      sourceEngine:
+                        description: 'SourceEngine is the engine used to create the backup. Must be "mysql".'
+                        type: string
+                      sourceEngineVersion:
+                        description: 'SourceEngineVersion is the version of the engine used to create the backup. Example: "5.7.30"'
+                        type: string
+                    required:
+                    - s3BucketName
+                    - s3IngestionRoleArn
+                    - sourceEngine
+                    - sourceEngineVersion
+                    type: object
                   iops:
                     description: 'IOPS is the amount of Provisioned IOPS (input/output operations per second) to be initially allocated for the DB instance. For information about valid IOPS values, see see Amazon RDS Provisioned IOPS Storage to Improve Performance (http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Storage.html#USER_PIOPS) in the Amazon RDS User Guide. Constraints: Must be a multiple between 1 and 50 of the storage amount for the DB instance. Must also be an integer multiple of 1000. For example, if the size of your DB instance is 500 GiB, then your IOPS value can be 2000, 3000, 4000, or 5000.'
                     type: integer
