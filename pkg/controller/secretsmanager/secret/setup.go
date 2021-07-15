@@ -56,17 +56,7 @@ const (
 // SetupSecret adds a controller that reconciles a Secret.
 func SetupSecret(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter, poll time.Duration) error {
 	name := managed.ControllerName(svcapitypes.SecretGroupKind)
-	opts := []option{
-		func(e *external) {
-			e.preObserve = preObserve
-			e.postObserve = postObserve
-			h := &hooks{client: e.client, kube: e.kube}
-			e.isUpToDate = h.isUpToDate
-			e.preUpdate = h.preUpdate
-			e.preCreate = h.preCreate
-			e.preDelete = preDelete
-		},
-	}
+	opts := []option{setupExternal}
 
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
@@ -82,6 +72,16 @@ func SetupSecret(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter, p
 			managed.WithPollInterval(poll),
 			managed.WithLogger(l.WithValues("controller", name)),
 			managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name)))))
+}
+
+func setupExternal(e *external) {
+	e.preObserve = preObserve
+	e.postObserve = postObserve
+	h := &hooks{client: e.client, kube: e.kube}
+	e.isUpToDate = h.isUpToDate
+	e.preUpdate = h.preUpdate
+	e.preCreate = h.preCreate
+	e.preDelete = preDelete
 }
 
 func preObserve(_ context.Context, cr *svcapitypes.Secret, obj *svcsdk.DescribeSecretInput) error {
