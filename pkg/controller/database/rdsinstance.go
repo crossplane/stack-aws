@@ -48,6 +48,7 @@ const (
 	errNotRDSInstance          = "managed resource is not an RDS instance custom resource"
 	errKubeUpdateFailed        = "cannot update RDS instance custom resource"
 	errCreateFailed            = "cannot create RDS instance"
+	errRestoreFailed           = "cannot restore RDS instance from backup"
 	errModifyFailed            = "cannot modify RDS instance"
 	errAddTagsFailed           = "cannot add tags to RDS instance"
 	errDeleteFailed            = "cannot delete RDS instance"
@@ -169,11 +170,20 @@ func (e *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 		}
 	}
 
-	req := e.client.CreateDBInstanceRequest(rds.GenerateCreateDBInstanceInput(meta.GetExternalName(cr), pw, &cr.Spec.ForProvider))
-	_, err = req.Send(ctx)
-	if err != nil {
-		return managed.ExternalCreation{}, awsclient.Wrap(err, errCreateFailed)
+	if cr.Spec.ForProvider.FromBackup == nil {
+		req := e.client.CreateDBInstanceRequest(rds.GenerateCreateDBInstanceInput(meta.GetExternalName(cr), pw, &cr.Spec.ForProvider))
+		_, err = req.Send(ctx)
+		if err != nil {
+			return managed.ExternalCreation{}, awsclient.Wrap(err, errCreateFailed)
+		}
+	} else {
+		req := e.client.RestoreDBInstanceFromS3Request(rds.GenerateRestoreDBInstanceInput(meta.GetExternalName(cr), pw, &cr.Spec.ForProvider))
+		_, err = req.Send(ctx)
+		if err != nil {
+			return managed.ExternalCreation{}, awsclient.Wrap(err, errRestoreFailed)
+		}
 	}
+
 	conn := managed.ConnectionDetails{
 		xpv1.ResourceCredentialsSecretPasswordKey: []byte(pw),
 	}

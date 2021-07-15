@@ -106,6 +106,27 @@ type ScalingConfiguration struct {
 	SecondsUntilAutoPause *int `json:"secondsUntilAutoPause,omitempty"`
 }
 
+// RestoreBackupConfiguration defines the backup to restore a new RDS instance from.
+type RestoreBackupConfiguration struct {
+	// S3BucketName is the name of the S3 bucket containing the backup to restore.
+	S3BucketName *string `json:"s3BucketName"`
+
+	// S3IngestionRoleArn is the IAM role that will allow RDS to access the contents of the S3 bucket.
+	S3IngestionRoleArn *string `json:"s3IngestionRoleArn"`
+
+	// S3Prefix is the prefix of the S3 bucket within which the backup to restore is located.
+	// +optional
+	S3Prefix *string `json:"s3Prefix"`
+
+	// SourceEngine is the engine used to create the backup.
+	// Must be "mysql".
+	SourceEngine *string `json:"sourceEngine"`
+
+	// SourceEngineVersion is the version of the engine used to create the backup.
+	// Example: "5.7.30"
+	SourceEngineVersion *string `json:"sourceEngineVersion"`
+}
+
 // RDSInstanceParameters define the desired state of an AWS Relational Database
 // Service instance.
 type RDSInstanceParameters struct {
@@ -367,6 +388,10 @@ type RDSInstanceParameters struct {
 	// in the Amazon RDS User Guide.
 	// +optional
 	EngineVersion *string `json:"engineVersion,omitempty"`
+
+	// FromBackup specifies the details of the backup to restore when creating a new RDS instance.
+	// +optional
+	FromBackup *RestoreBackupConfiguration `json:"fromBackup"`
 
 	// IOPS is the amount of Provisioned IOPS (input/output operations per second) to be
 	// initially allocated for the DB instance. For information about valid IOPS
